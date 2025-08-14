@@ -1,0 +1,49 @@
+{
+  "name": "e-permit-api",
+  "version": "0.0.0",
+  "description": "",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
+  "files": [
+    "build/src"
+  ],
+  "license": "Apache-2.0",
+  "keywords": [],
+  "scripts": {
+    "dev": "rm -rf ./build && npx tsx watch --env-file=.env src/index.ts",
+    "build": "tsc",
+    "start": "node --env-file=.env build/src/index.js",
+    "codegen": "kysely-codegen --out-file ./src/infra/db/types.d.ts",
+    "reset": "npx kysely migrate:rollback --all && npx kysely migrate:latest && npx kysely seed:run && npm run codegen"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/http-errors": "^2.0.5",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^22.7.5",
+    "@types/pg": "^8.15.4",
+    "gts": "^6.0.2",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^9.4.0",
+    "@fastify/cors": "^9.0.1",
+    "@fastify/helmet": "^11.1.1",
+    "@fastify/multipart": "^8.3.1",
+    "@fastify/sensible": "^5.6.0",
+    "@fastify/static": "^7.0.4",
+    "@ts-rest/core": "^3.52.1",
+    "@ts-rest/fastify": "^3.52.1",
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^17.2.0",
+    "http-errors": "^2.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "kysely": "^0.28.2",
+    "kysely-codegen": "^0.18.5",
+    "kysely-ctl": "^0.13.1",
+    "pg": "^8.16.3",
+    "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.20.3",
+    "zod": "^3.25.76"
+  }
+}
