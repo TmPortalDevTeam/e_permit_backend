@@ -3,6 +3,7 @@ import { commonQuery, sortDirection } from './common';
 
 export const RoleEnum = z.enum(['superadmin', 'bugalter', 'merkezi_gozegçi', 'post_gozegçi']);
 export type Roles = z.infer<typeof RoleEnum>;
+
 export const role = z.object({
   uuid: z.string().uuid(),
   name: z.string().nullable(),
