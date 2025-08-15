@@ -10,9 +10,10 @@
   "license": "Apache-2.0",
   "keywords": [],
   "scripts": {
-    "dev": "rm -rf ./build && npx tsx watch --env-file=.env src/index.ts",
+    "dev": "npx tsx watch --env-file=.env src/index.ts",
     "build": "tsc",
     "start": "node --env-file=.env build/src/index.js",
+    "migrate": "npx kysely migrate:latest",
     "codegen": "kysely-codegen --out-file ./src/infra/db/types.d.ts",
     "reset": "npx kysely migrate:rollback --all && npx kysely migrate:latest && npx kysely seed:run && npm run codegen"
   },

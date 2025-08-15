@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { Payload } from './api/schema/auth.js';
+import { Payload } from './api/schema/auth';
 
 declare module 'fastify' {
   interface FastifyRequest {

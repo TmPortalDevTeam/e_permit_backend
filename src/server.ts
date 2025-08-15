@@ -12,6 +12,7 @@ import { router } from './app/controller';
 import { connectCheck } from './infra/db';
 import { envCheck } from './infra/env';
 import { getEnv } from './infra/env/service';
+import { bcryptService } from './utils';
 
 const app = Fastify({ logger: { level: 'debug' } });
 const port = getEnv('PORT');

@@ -7,6 +7,9 @@ export const envSchema = z.object({
   PORT: z.coerce.number().optional().default(3000),
   HOST: z.string(),
   JWT_SECRET: z.string(),
+  JWT_REFRESH_SECRET: z.any(),
+  JWT_ACCESS_EXPIRES_IN: z.any(),
+  JWT_REFRESH_EXPIRES_IN: z.any(),
 
   COOKIE_SECRET: z.string(),
   COOKIE_HTTP_ONLY: strBool.default(true),
