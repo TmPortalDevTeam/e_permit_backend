@@ -5,8 +5,8 @@ import { Insertable, Selectable } from 'kysely';
 
 const tableRole = 'roles';
 
-type Table = DB['admins'];
-const table = 'admins';
+type Table = DB['admin'];
+const table = 'admin';
 type Filter = Partial<Selectable<Table> & AdminGetAll>;
 type Insert = Insertable<Table>;
 
@@ -21,12 +21,12 @@ const remove = (uuid: string) => {
 const getAll = async (p: Filter & LimitOffset) => {
   let q = db
     .selectFrom(table)
-    .leftJoin('roles', 'admins.role_id', 'roles.uuid');
+    .leftJoin('roles', 'admin.role_id', 'roles.uuid');
 
-  if (p.uuid) q = q.where('admins.uuid', '=', p.uuid);
-  if (p.username) q = q.where('admins.username', '=', p.username);
-  if (p.name) q = q.where('admins.name', '=', p.name);
-  if (p.role) q = q.where('admins.role_id', '=', p.role);
+  if (p.uuid) q = q.where('admin.uuid', '=', p.uuid);
+  if (p.username) q = q.where('admin.username', '=', p.username);
+  if (p.name) q = q.where('admin.name', '=', p.name);
+  if (p.role) q = q.where('admin.role_id', '=', p.role);
 
   if (p.text) {
     q = q.where(o =>
@@ -42,9 +42,9 @@ const getAll = async (p: Filter & LimitOffset) => {
   
   const data = await q
     .select([
-      'admins.uuid',
-      'admins.username',
-      'admins.name',
+      'admin.uuid',
+      'admin.username',
+      'admin.name',
       'roles.name as role',
     ])
     .limit(p.limit)
@@ -55,21 +55,21 @@ const getAll = async (p: Filter & LimitOffset) => {
 };
 
 const findOne = async (p: Filter) => {
-  let q = db.selectFrom(table).leftJoin('roles', 'admins.role_id', 'roles.uuid');
+  let q = db.selectFrom(table).leftJoin('roles', 'admin.role_id', 'roles.uuid');
 
-  if (p.uuid) q = q.where('admins.uuid', '=', p.uuid);
-  if (p.username) q = q.where('admins.username', '=', p.username);
-  if (p.password_name) q = q.where('admins.password_name', '=', p.password_name);
-  if (p.name) q = q.where('admins.name', '=', p.name);
-  if (p.role_id) q = q.where('admins.role_id', '=', p.role_id);
+  if (p.uuid) q = q.where('admin.uuid', '=', p.uuid);
+  if (p.username) q = q.where('admin.username', '=', p.username);
+  if (p.password_name) q = q.where('admin.password_name', '=', p.password_name);
+  if (p.name) q = q.where('admin.name', '=', p.name);
+  if (p.role_id) q = q.where('admin.role_id', '=', p.role_id);
 
   const result = await q.
     select([
-      'admins.uuid',
-      'admins.username',
-      'admins.password',
-      'admins.password_name',
-      'admins.name',
+      'admin.uuid',
+      'admin.username',
+      'admin.password',
+      'admin.password_name',
+      'admin.name',
       'roles.uuid as role_id',
       'roles.name as role_name',
     ])

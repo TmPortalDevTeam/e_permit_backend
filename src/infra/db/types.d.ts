@@ -9,7 +9,21 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
 
-export interface Admins {
+export type Json = JsonValue;
+
+export type JsonArray = JsonValue[];
+
+export type JsonObject = {
+  [x: string]: JsonValue | undefined;
+};
+
+export type JsonPrimitive = boolean | number | string | null;
+
+export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
+
+export type Timestamp = ColumnType<Date, Date | string, Date | string>;
+
+export interface Admin {
   name: string | null;
   password: string;
   password_name: string | null;
@@ -18,12 +32,137 @@ export interface Admins {
   uuid: Generated<string>;
 }
 
+export interface BlackHistory {
+  company_name: string | null;
+  uuid: Generated<string>;
+}
+
+export interface ClientIndividual {
+  name: string | null;
+  patent_expire_date: Timestamp | null;
+  patent_number: string | null;
+  patronymic: string | null;
+  permit_id: string | null;
+  surname: string | null;
+  uuid: Generated<string>;
+}
+
+export interface ClientLegal {
+  account_number: string | null;
+  address: string | null;
+  bank_details: string | null;
+  certificate_number: string | null;
+  company_name: string | null;
+  number_of_cars: number | null;
+  permit_id: string | null;
+  uuid: Generated<string>;
+  yegrpo_expire_date: Timestamp | null;
+  yegrpo_number: string | null;
+}
+
+export interface Driver {
+  driving_license_expired_date: string | null;
+  driving_license_number: string | null;
+  name: string | null;
+  patronymic: string | null;
+  permit_id: string | null;
+  surname: string | null;
+  uuid: Generated<string>;
+}
+
+export interface Payment {
+  amount: number | null;
+  order_id: string | null;
+  permit_id: string | null;
+  uuid: Generated<string>;
+}
+
+export interface Permit {
+  auth_id: string | null;
+  city: string | null;
+  container_number: number | null;
+  country: string | null;
+  created_at: Generated<Timestamp>;
+  departure_date: Timestamp | null;
+  email: string | null;
+  email_sent: Generated<number | null>;
+  is_legal: boolean | null;
+  is_paid: Generated<boolean | null>;
+  issued_for: string | null;
+  license_expire_date: Timestamp | null;
+  license_number: string | null;
+  license_types: Json | null;
+  licenses: Json | null;
+  permit_type: number | null;
+  phone: string | null;
+  region: string | null;
+  return_date: Timestamp | null;
+  status: Generated<number | null>;
+  transit_country: string | null;
+  type_of_cargo: string | null;
+  uuid: Generated<string>;
+  views_count: Generated<number | null>;
+}
+
+export interface PermitHistory {
+  company_name: string | null;
+  date: Generated<Timestamp>;
+  name: string | null;
+  permit_id: string | null;
+  uuid: Generated<string>;
+}
+
 export interface Roles {
-  name: string;
+  name: string | null;
+  uuid: Generated<string>;
+}
+
+export interface Transport {
+  brand: Json | null;
+  card_expire_date: Json | null;
+  card_number: Json | null;
+  card_start_date: Json | null;
+  foreign_plate_number: Json | null;
+  permit_id: string | null;
+  plate_number: Json | null;
+  type: Json | null;
+  uuid: Generated<string>;
+}
+
+export interface UserHistory {
+  company_name: string | null;
+  date: Generated<Timestamp>;
+  left_deposit: number | null;
+  name: string | null;
+  permit_id: string | null;
+  uuid: Generated<string>;
+  withdraw_sum: number | null;
+}
+
+export interface Users {
+  created_at: Generated<Timestamp>;
+  deposit: number | null;
+  deposit_individual: Generated<number | null>;
+  deposit_legal: Generated<number | null>;
+  email: string | null;
+  name: string | null;
+  phone: string | null;
+  updated_at: Generated<Timestamp>;
+  user_id: number | null;
   uuid: Generated<string>;
 }
 
 export interface DB {
-  admins: Admins;
+  admin: Admin;
+  black_history: BlackHistory;
+  client_individual: ClientIndividual;
+  client_legal: ClientLegal;
+  driver: Driver;
+  payment: Payment;
+  permit: Permit;
+  permit_history: PermitHistory;
   roles: Roles;
+  transport: Transport;
+  user_history: UserHistory;
+  users: Users;
 }

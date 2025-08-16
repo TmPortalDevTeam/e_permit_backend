@@ -1,9 +1,11 @@
 import { contract } from '@api/contracts';
 import { s } from '@app/router';
+import { authRouter } from '@src/app/admin/auth/controller';
 import { adminRouter } from '@src/app/admin/controller';
-import { authRouter } from '@src/app/admin//auth/controller';
+import { userRouter } from '@src/app/user/controller';
 
 export const router = s.router(contract, {
-  admin: adminRouter,
   auth: authRouter,
+  admin: adminRouter,
+  user: userRouter,
 });

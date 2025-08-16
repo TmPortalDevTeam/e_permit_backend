@@ -11,6 +11,7 @@ const dialect = new PostgresDialect({
 
 export type DB = Database & {
     roles: Database['roles']
+    users: Database['users']
 };
 
 export const db = new Kysely<DB>({ dialect, log: ['query'] });
