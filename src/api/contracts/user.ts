@@ -1,6 +1,7 @@
 import { initContract } from '@ts-rest/core';
 import { userSchema as schema } from '../schema/user';
-import z from 'zod';
+import z, { string } from 'zod';
+import { uuid } from '../schema/uuid';
 
 const c = initContract();
 
@@ -15,7 +16,7 @@ export const userContract = c.router(
     // },
     getAll: {
       method: 'GET',
-      path: '',
+      path: '/users',
       query: schema.getAll,
       responses: {
         200: schema.getAllRes,
@@ -23,11 +24,20 @@ export const userContract = c.router(
     },
     create: {
       method: 'POST',
-      path: '',
+      path: '/users',
       body: schema.create,
       responses: {
         201: {} as any,
       },
+    },
+    addDeposit: {
+      method: 'POST',
+      path: '/deposit/:uuid',
+      pathParams: uuid,
+      body: schema.addDeposit,
+      responses: {
+        200: schema.getOneResDeposit,
+      }
     },
     //   remove: {
     //     method: 'DELETE',
@@ -38,5 +48,5 @@ export const userContract = c.router(
     //     },
     //   },
   },
-  { pathPrefix: '/api/admin/users' },
+  { pathPrefix: '/api/admin' },
 );

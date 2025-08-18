@@ -18,6 +18,13 @@ export const user = z.object({
     .nullable()
 });
 
+export const userDeposit = z.object({
+  deposit_legal: z.number(),
+  deposit_individual: z.number(),
+})
+
+export const userDepositGetOneRes = z.object({ data: z.string() })
+
 export const userGetOneRes = user;
 export const userGetAll = user.extend({ text: z.string() }).partial().merge(commonQuery);
 export const userGetAllRes = z.object({
@@ -45,9 +52,16 @@ export const userCreate = user
   })
   .extend({ uuid: z.string().uuid().nullable() });
 
+export const userDepositAdd = userDeposit.pick({
+  deposit_legal: true,
+  deposit_individual: true
+});
+
+
 export type User = z.infer<typeof user>;
 export type UserGetAll = z.infer<typeof userGetAll>;
 export type UserCreate = z.infer<typeof userCreate>;
+export type UserAddDeposite = z.infer<typeof userDepositAdd>;
 
 
 export const userSchema = {
@@ -56,10 +70,13 @@ export const userSchema = {
   getAllRes: userGetAllRes,
   getOneRes: userGetOneRes,
   create: userCreate,
+  addDeposit: userDepositAdd,
+  getOneResDeposit: userDepositGetOneRes,
 };
 
 export type UserSchema = {
   Schema: User;
   GetAll: UserGetAll;
   Create: UserCreate;
+  AddDeposit: UserAddDeposite;
 };

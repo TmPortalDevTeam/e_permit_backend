@@ -20,6 +20,18 @@ export const userRouter = s.router(userContract, {
       return { status: 201, body: r };
     },
   },
+  addDeposit: {
+    hooks: {
+      preHandler: [auth, checkRole(['superadmin'])]
+    },
+    handler: async ({ params, body }) => {
+      const obj = { ...body, uuid: params.uuid };
+      const r = await service.addDeposit(obj);
+      return { status: 200, body: { data: r } };
+    },
+  },
+
+
   // edit: {
   //   hooks: { preHandler: auth },
   //   handler: async ({ params, body }) => {
