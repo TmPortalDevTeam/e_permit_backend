@@ -21,4 +21,6 @@ export const strBool = z.union([z.enum(['true', 'false']), z.boolean()]).transfo
 
 export const paramsId = z.object({ id: z.string().uuid() });
 
+export const paramsUuid = z.object({ uuid: z.string().uuid() });
+
 export const addFile = z.custom<{ file: any }>();

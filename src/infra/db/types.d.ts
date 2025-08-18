@@ -34,6 +34,8 @@ export interface Admin {
 
 export interface BlackHistory {
   company_name: string | null;
+  moved_at: Generated<Timestamp>;
+  permit_id: string;
   uuid: Generated<string>;
 }
 

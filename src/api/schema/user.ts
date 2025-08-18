@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { commonQuery } from './common';
+import { commonQuery, strBool } from './common';
 
 export const user = z.object({
   uuid: z.string().uuid(),
@@ -21,9 +21,18 @@ export const user = z.object({
 export const userDeposit = z.object({
   deposit_legal: z.number(),
   deposit_individual: z.number(),
-})
+});
 
-export const userDepositGetOneRes = z.object({ data: z.string() })
+export const depositBalance = user.pick({ uuid: true }).extend({ is_legal: strBool.default(true) });
+
+export const removeDeposit = user.pick({ uuid: true }).extend({ deposit: z.number().nullable().optional() });
+
+export const userDepositGetOneRes = z.object({ data: z.string() });
+
+export const userRemoveDepositGetOneRes = z.object({
+  uuid: z.string().uuid(),
+  deposit_balance: z.number().nullable(),
+});
 
 export const userGetOneRes = user;
 export const userGetAll = user.extend({ text: z.string() }).partial().merge(commonQuery);
@@ -62,6 +71,8 @@ export type User = z.infer<typeof user>;
 export type UserGetAll = z.infer<typeof userGetAll>;
 export type UserCreate = z.infer<typeof userCreate>;
 export type UserAddDeposite = z.infer<typeof userDepositAdd>;
+export type RemoveDeposit = z.infer<typeof removeDeposit>;
+export type DepositBalance = z.infer<typeof depositBalance>;
 
 
 export const userSchema = {
@@ -72,6 +83,9 @@ export const userSchema = {
   create: userCreate,
   addDeposit: userDepositAdd,
   getOneResDeposit: userDepositGetOneRes,
+  getOneResDepositRemove: userRemoveDepositGetOneRes,
+  removeDeposit,
+  getOneDepositBalance: depositBalance
 };
 
 export type UserSchema = {
@@ -79,4 +93,6 @@ export type UserSchema = {
   GetAll: UserGetAll;
   Create: UserCreate;
   AddDeposit: UserAddDeposite;
+  RemoveDeposit: RemoveDeposit;
+
 };

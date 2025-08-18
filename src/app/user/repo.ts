@@ -1,8 +1,6 @@
 import { LimitOffset } from '@api/schema/common';
 import { db, DB } from '@infra/db/db';
-// import { LocationGetAll } from '@src/api/schema/user';
-import { ExpressionBuilder, Insertable, Selectable, Updateable } from 'kysely';
-import { jsonObjectFrom } from 'kysely/helpers/postgres';
+import { Insertable, Selectable, Updateable } from 'kysely';
 
 type Table = DB['users'];
 const table = 'users';
@@ -34,14 +32,24 @@ const getAll = async (p: Filter & LimitOffset) => {
   return { count: Number(c?.c), data };
 };
 
-// const getOne = (id: string) => {
-//   return db
-//     .selectFrom(table)
-//     .where('id', '=', id)
-//     .select(['id', 'name', 'parentId'])
-//     .select(o => parent(o))
-//     .executeTakeFirst();
-// };
+const getOne = (uuid: string) => {
+  return db
+    .selectFrom(table)
+    .where('uuid', '=', uuid)
+    .select([
+      'uuid',
+      'user_id',
+      'name',
+      'email',
+      'phone',
+      'deposit_legal',
+      'deposit_individual',
+      'created_at',
+      'updated_at',
+      'deposit'
+    ])
+    .executeTakeFirst();
+};
 
 const findOne = async (p: Filter) => {
   let q = db.selectFrom(table);
@@ -52,33 +60,18 @@ const findOne = async (p: Filter) => {
   return q.selectAll().executeTakeFirst();
 };
 
-const create = (p: Insert) => {
+const create = async (p: Insert) => {
   return db.insertInto(table).values(p).returningAll().executeTakeFirst();
 };
 
-const edit = (uuid: string, p: Edit) => {
+const edit = async (uuid: string, p: Edit) => {
   return db.updateTable(table).where('uuid', '=', uuid).set(p).returningAll().executeTakeFirst();
 };
 
-// const edit = (id: string, p: Edit) => {
-//   return db.updateTable(table).where('id', '=', id).set(p).returningAll().executeTakeFirst();
-// };
-
-// const remove = (id: string) => {
-//   return db.deleteFrom(table).where('id', '=', id).returningAll().executeTakeFirst();
-// };
-
-// const parent = (p: ExpressionBuilder<DB, 'locations'>) => {
-//   return jsonObjectFrom(
-//     p.selectFrom('locations as parent').whereRef('locations.parentId', '=', 'parent.id').selectAll('parent'),
-//   ).as('parent');
-// };
-
 export const userRepo = {
-  getAll,
-  // getOne,
-  edit,
-  // remove,
-  findOne,
   create,
+  edit,
+  findOne,
+  getAll,
+  getOne,
 };

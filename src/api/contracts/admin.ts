@@ -1,6 +1,6 @@
 import { initContract } from '@ts-rest/core';
 import { adminSchema as schema } from '../schema/admin';
-import z from 'zod';
+import { paramsUuid } from '../schema/common';
 
 const c = initContract();
 
@@ -32,7 +32,7 @@ export const adminContract = c.router(
     remove: {
       method: 'DELETE',
       path: '/:uuid',
-      pathParams: z.object({ uuid: z.string().uuid() }),
+      pathParams: paramsUuid,
       responses: {
         201: schema.getOneRes,
       },

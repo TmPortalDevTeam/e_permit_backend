@@ -1,12 +1,23 @@
+import { getEnv } from '@src/infra/env/service';
 import { limitOffset } from '@api/schema/common';
+import { err } from '@src/utils';
 import {
   UserAddDeposite,
   UserCreate,
   UserGetAll,
+  RemoveDeposit,
+  DepositBalance
 } from '@src/api/schema/user';
-import { err } from '@src/utils';
 import { userRepo as repo } from './repo';
-import { UUID } from '@src/api/schema/uuid';
+import { permitRepo } from '../permit/repo';
+import { paymentRepo } from '../payment/repo';
+import { blackHistoryRepo } from '../blackHistory/repo';
+import { BlackHistoryGetAll } from '@src/api/schema/blackHistory';
+import { PaymentCreate } from '@src/api/schema/payment';
+
+const deductionAmount = getEnv('DEDUCTION_AMOUNT'); // 450.0
+
+
 
 export const getAll = async (p: UserGetAll) => {
   const { limit, offset } = limitOffset(p);
@@ -36,7 +47,7 @@ export const create = async (p: UserCreate) => {
 
 };
 
-export const addDeposit = async (p: UserAddDeposite & { uuid: UUID }) => {
+export const addDeposit = async (p: UserAddDeposite & { uuid: string }) => {
 
   const user = await repo.findOne({ uuid: p.uuid });
   if (!user) err.NotFound("Not found user");
@@ -45,45 +56,76 @@ export const addDeposit = async (p: UserAddDeposite & { uuid: UUID }) => {
   const newDepositIndividual: number = (user?.deposit_individual ?? 0) + p.deposit_individual;
 
   const newUserDeposit = {
-    deposit_legal: newDepositLegal,
-    deposit_individual: newDepositIndividual
+    deposit_legal: Number(newDepositLegal.toFixed(2)),
+    deposit_individual: Number(newDepositIndividual.toFixed(2))
   }
 
   const one = await repo.edit(p.uuid, newUserDeposit);
-  if (!one) throw err.BadRequest('not updated');
+  if (!one) throw err.Conflict('Not updated');
 
   return one.uuid;
 };
 
-// export const getOne = async (id: string) => {
-//   const one = await repo.getOne(id);
-//   if (!one) throw new err.NotFound();
-//   return one;
-// };
+const RemoveDepositLegal = async (d: RemoveDeposit) => {
+  const deposit_legal = Number(((d.deposit ?? 0) - deductionAmount).toFixed(2));
+  const one = await repo.edit(d.uuid, { deposit_legal });
+  if (!one) throw err.Conflict('Not updated');
 
-// export const edit = async (id: string, p: LocationEdit) => {
-//   const one = await repo.getOne(id);
-//   if (!one) throw new err.NotFound();
-//   if (p.parentId) {
-//     const parent = await repo.getOne(p.parentId);
-//     if (!parent) throw err.NotFound('parent');
-//   }
-//   await repo.edit(id, p);
-//   return one;
-// };
+  return {
+    uuid: d.uuid,
+    deposit_balance: one.deposit_legal
+  }
+}
 
-// export const remove = async (id: string) => {
-//   const one = await repo.getOne(id);
-//   if (!one) throw new err.NotFound();
-//   await repo.remove(id);
-//   return one;
-// };
+const RemoveDepositIndividual = async (d: RemoveDeposit) => {
+  const deposit_individual = Number(((d.deposit ?? 0) - deductionAmount).toFixed(2));
+  const one = await repo.edit(d.uuid, { deposit_individual });
+  if (!one) throw err.Conflict('Not updated');
+
+  return {
+    uuid: d.uuid,
+    deposit_balance: one.deposit_individual
+  }
+}
+
+export const removeMoneyFromDeposit = async (uuid: string) => {
+  const permitIslegal = await permitRepo.getLastPermitUser(uuid);
+  if (permitIslegal === undefined) err.NotFound("Not found permit");
+
+  const user = await repo.findOne({ uuid });
+  if (!user) err.NotFound("Not found user");
+
+  return permitIslegal
+    ? await RemoveDepositLegal({ uuid, deposit: user?.deposit_legal })
+    : await RemoveDepositIndividual({ uuid, deposit: user?.deposit_individual });
+};
+
+export const getBlackHistory = async (p: BlackHistoryGetAll) => {
+  const { limit, offset } = limitOffset(p);
+  return blackHistoryRepo.getAll({ ...p, limit, offset });
+};
+
+export const getDepositBalance = async (p: DepositBalance) => {
+  const user = await repo.findOne({ uuid: p.uuid });
+  if (!user) err.NotFound("Not found user");
+
+  return p.is_legal ? user?.deposit_legal : user?.deposit_individual;
+};
+
+export const addPayment = async (p: PaymentCreate) => {
+  const one = await paymentRepo.addPayment(p);
+  if (!one) err.Conflict("Do not payment add");
+
+  return { success: one }
+};
+
 
 export const userService = {
   create,
   getAll,
   addDeposit,
-  // getOne,
-  // edit,
-  // remove,
+  removeMoneyFromDeposit,
+  getBlackHistory,
+  getDepositBalance,
+  addPayment,
 };

@@ -17,7 +17,7 @@ export const userRouter = s.router(userContract, {
     },
     handler: async ({ body }) => {
       const r = await service.create(body);
-      return { status: 201, body: r };
+      return { status: 200, body: r };
     },
   },
   addDeposit: {
@@ -30,27 +30,42 @@ export const userRouter = s.router(userContract, {
       return { status: 200, body: { data: r } };
     },
   },
-
-
-  // edit: {
-  //   hooks: { preHandler: auth },
-  //   handler: async ({ params, body }) => {
-  //     const r = await service.edit(params.id, body);
-  //     return { status: 201, body: r };
-  //   },
-  // },
-  // getOne: {
-  //   hooks: { preHandler: auth },
-  //   handler: async ({ params }) => {
-  //     const r = await service.getOne(params.id);
-  //     return { status: 200, body: r };
-  //   },
-  // },
-  // remove: {
-  //   hooks: { preHandler: auth },
-  //   handler: async ({ params }) => {
-  //     const r = await service.remove(params.id);
-  //     return { status: 201, body: r };
-  //   },
-  // },
+  removeDeposit: {
+    hooks: {
+      preHandler: [auth, checkRole(['superadmin'])]
+    },
+    handler: async ({ params }) => {
+      const r = await service.removeMoneyFromDeposit(params.uuid)
+      return { status: 200, body: r };
+    },
+  },
+  getBlackHistory: {
+    hooks: {
+      preHandler: [auth, checkRole(['superadmin'])]
+    },
+    handler: async ({ query }) => {
+      const r = await service.getBlackHistory(query)
+      return { status: 200, body: r };
+    },
+  },
+  getBalance: {
+    hooks: {
+      preHandler: [auth, checkRole(['superadmin'])]
+    },
+    handler: async ({ body }) => {
+      const r = await service.getDepositBalance(body);
+      return {
+        status: 200, body: r
+      };
+    },
+  },
+  addPayment: {
+    hooks: {
+      preHandler: [auth, checkRole(['superadmin'])]
+    },
+    handler: async ({ body }) => {
+      const r = await service.addPayment(body);
+      return { status: 200, body: r };
+    },
+  },
 });
