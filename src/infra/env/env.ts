@@ -1,5 +1,5 @@
 import { strBool } from '@src/api/schema/common';
-import { z } from 'zod';
+import { string, z } from 'zod';
 
 export const envSchema = z.object({
   NODE_ENV: z.string(),
@@ -11,6 +11,7 @@ export const envSchema = z.object({
   JWT_ACCESS_EXPIRES_IN: z.any(),
   JWT_REFRESH_EXPIRES_IN: z.any(),
   DEDUCTION_AMOUNT: z.coerce.number(),
+  E_PERMIT_API: z.string(),
 
   COOKIE_SECRET: z.string(),
   COOKIE_HTTP_ONLY: strBool.default(true),

@@ -68,4 +68,6 @@ export const userRouter = s.router(userContract, {
       return { status: 200, body: r };
     },
   },
+  //	history= "/history" GetUserHistory() GetUserHistory() edilmedik  epermit_ledger_permits tablisiya yok serverdada 
+  //	usr_history= "/history/{uuid}"   GetUserHistoryByUUID() bardede sho problem   epermit_ledger_permits tablisiya yok serverdada 
 });

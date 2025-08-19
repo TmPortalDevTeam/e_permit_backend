@@ -3,9 +3,11 @@ import { s } from '@app/router';
 import { authRouter } from '@src/app/admin/auth/controller';
 import { adminRouter } from '@src/app/admin/controller';
 import { userRouter } from '@src/app/user/controller';
+import { permitRouter } from '@src/app/permit/controller';
 
 export const router = s.router(contract, {
   auth: authRouter,
   admin: adminRouter,
   user: userRouter,
+  permit: permitRouter,
 });
