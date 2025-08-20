@@ -12,6 +12,7 @@ export const envSchema = z.object({
   JWT_ACCESS_EXPIRES_IN: z.any(),
   JWT_REFRESH_EXPIRES_IN: z.any(),
   DEDUCTION_AMOUNT: z.coerce.number(),
+  
   E_PERMIT_API: z.string(),
 
   COOKIE_SECRET: z.string(),
