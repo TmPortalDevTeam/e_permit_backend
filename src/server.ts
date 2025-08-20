@@ -15,8 +15,10 @@ import { getEnv } from './infra/env/service';
 import { bcryptService } from './utils';
 
 const app = Fastify({ logger: { level: 'debug' } });
+const NODE_ENV = getEnv('NODE_ENV');
 const port = getEnv('PORT');
-const host = getEnv('HOST');
+const host = NODE_ENV === 'dev' ? getEnv('HOST') : getEnv('HOST_PROD');
+
 const cookieSecret = getEnv('COOKIE_SECRET');
 
 const s = initServer();
@@ -25,18 +27,6 @@ const start = async () => {
   try {
     await envCheck();
     await connectCheck();
-
-    await app.register(cookie, {
-      secret: cookieSecret,
-      hook: 'onRequest',
-      parseOptions: {
-        httpOnly: getEnv('COOKIE_HTTP_ONLY'),
-        secure: getEnv('COOKIE_SECURE'),
-        sameSite: getEnv('COOKIE_SAME_SITE'),
-        signed: true,
-        path: '/',
-      },
-    });
 
     await app.register(cors, { origin: true, credentials: true });
     await app.register(fastifyHelmet);
@@ -55,7 +45,7 @@ const start = async () => {
 
     s.registerRouter(contract, router, app);
 
-    await app.listen({ port, host: getEnv('HOST') });
+    await app.listen({ port, host });
     console.log(`http://${host}:${port}`);
   } catch (err) {
     console.log(err);

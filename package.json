@@ -10,7 +10,8 @@
   "license": "Apache-2.0",
   "keywords": [],
   "scripts": {
-    "dev": "npx tsx watch --env-file=.env src/index.ts",
+    "dev:l": "npx tsx watch --env-file=.env src/index.ts",
+    "dev": "rm -rf ./build && npx tsx watch --env-file=.env src/index.ts",
     "build": "tsc",
     "start": "node --env-file=.env build/src/index.js",
     "migrate": "npx kysely migrate:latest",
