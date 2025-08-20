@@ -1,8 +1,9 @@
-import { LimitOffset } from '@api/schema/common';
-import { db, DB } from '@infra/db/db';
-import { Insertable, Selectable, Updateable } from 'kysely';
-import { PemritCreate } from '@src/api/schema/permit';
 import { err } from '@src/utils';
+import { ExpressionBuilder, Insertable, Selectable, Updateable } from 'kysely';
+import { jsonObjectFrom } from 'kysely/helpers/postgres';
+import { db, DB } from '@infra/db/db';
+import { PemritCreate } from '@src/api/schema/permit';
+import { LimitOffset } from '@api/schema/common';
 
 const table = 'permit';
 type Table = DB['permit'];
@@ -51,9 +52,9 @@ const createPermit = async (d: PemritCreate) => {
         region: d.region,
         license_number: d.license_number,
         license_expire_date: d.license_expire_date,
-        license_types: d.license_types,
+        license_types: JSON.stringify(d.license_types),
         is_legal: d.is_legal,
-        licenses: d.licenses,
+        licenses: JSON.stringify(d.licenses),
         container_number: d.container_number,
         issued_for: d.issued_for,
         permit_type: d.permit_type,
@@ -63,24 +64,6 @@ const createPermit = async (d: PemritCreate) => {
       .executeTakeFirst();
 
     if (!permit) throw err.Conflict('Permit not created');
-
-
-    const clientLegal = await trx.insertInto('client_legal')
-      .values({
-        permit_id: permit.uuid,
-        company_name: d.legal_company_name,
-        address: d.legal_address,
-        yegrpo_number: d.legal_yegrpo_number,
-        yegrpo_expire_date: d.legal_yegrpo_expire_date,
-        certificate_number: d.legal_certificate_number,
-        bank_details: d.legal_bank_details,
-        account_number: d.legal_account_number,
-        number_of_cars: d.legal_number_of_cars,
-      })
-      .returningAll()
-      .executeTakeFirst();
-
-    if (!clientLegal) throw err.Conflict('client_legal not created');
 
 
     if (d.is_legal) {
@@ -135,13 +118,13 @@ const createPermit = async (d: PemritCreate) => {
     const transport = await trx.insertInto('transport')
       .values({
         permit_id: permit.uuid,
-        brand: d.brand,
-        type: d.type,
-        card_number: d.card_number,
-        card_start_date: d.card_start_date,
-        card_expire_date: d.card_expire_date,
-        plate_number: d.plate_number,
-        foreign_plate_number: d.foreign_plate_number,
+        brand: JSON.stringify(d.brand),
+        type: JSON.stringify(d.type),
+        card_number: JSON.stringify(d.card_number),
+        card_start_date: JSON.stringify(d.card_start_date),
+        card_expire_date: JSON.stringify(d.card_expire_date),
+        plate_number: JSON.stringify(d.plate_number),
+        foreign_plate_number: JSON.stringify(d.foreign_plate_number),
       })
       .returningAll()
       .executeTakeFirst();
@@ -152,11 +135,142 @@ const createPermit = async (d: PemritCreate) => {
   });
 }
 
+// async function getAllPermits() {
+//   return await db
+//     .selectFrom('permit as p')
+//     .leftJoin('client_individual as ci', 'p.uuid', 'ci.permit_id')
+//     .leftJoin('client_legal as cl', 'p.uuid', 'cl.permit_id')
+//     .leftJoin('driver as d', 'p.uuid', 'd.permit_id')
+//     .leftJoin('transport as t', 'p.uuid', 't.permit_id')
+//     .leftJoin('users as u', 'p.auth_id', 'u.uuid')
+//     .select((eb) => [
+//       'p.uuid',
+//       'p.country',
+//       'p.type_of_cargo',
+//       'p.departure_date',
+//       'p.return_date',
+//       'p.phone',
+//       'p.email',
+//       'p.city',
+//       'p.region',
+//       'p.license_number',
+//       'p.license_expire_date',
+//       'p.license_types',
+//       'p.licenses',
+//       'p.container_number',
+//       'p.is_legal',
+//       'p.status',
+//       'p.issued_for',
+//       'p.permit_type',
+//       'p.auth_id',
+
+//       // client_individual
+//       eb.ref('ci.name').as('client_name'),
+//       eb.ref('ci.surname').as('client_surname'),
+//       eb.ref('ci.patronymic').as('client_patronymic'),
+//       'ci.patent_number',
+//       'ci.patent_expire_date',
+
+//       // client_legal
+//       'cl.company_name',
+//       'cl.address',
+//       'cl.yegrpo_number',
+//       'cl.yegrpo_expire_date',
+//       'cl.certificate_number',
+//       'cl.bank_details',
+//       'cl.account_number',
+//       'cl.number_of_cars',
+
+//       // driver
+//       eb.ref('d.name').as('driver_name'),
+//       eb.ref('d.surname').as('driver_surname'),
+//       eb.ref('d.patronymic').as('driver_patronymic'),
+//       'd.driving_license_number',
+//       'd.driving_license_expired_date',
+
+//       // transport
+//       't.brand',
+//       't.type',
+//       't.card_number',
+//       't.card_start_date',
+//       't.card_expire_date',
+//       't.plate_number',
+//       't.foreign_plate_number',
+
+//       // user
+//       eb.ref('u.name').as('auth_name'),
+//       'u.deposit_legal',
+//       'u.deposit_individual',
+//       'p.is_paid',
+//     ])
+//     .execute()
+// }
+
+const getAllPermits = async () => {
+  return await db
+    .selectFrom(table)
+    .selectAll()
+    .select((eb) => [
+      clientIndividual(eb),
+      clientLegal(eb),
+      driver(eb),
+      transport(eb),
+      'auth_id',
+      'is_paid',
+    ])
+    .execute();
+};
+
+const clientIndividual = (p: ExpressionBuilder<DB, 'permit'>) => {
+  return jsonObjectFrom(
+    p
+      .selectFrom('client_individual')
+      .whereRef('client_individual.permit_id', '=', 'permit.uuid')
+      .select(['name', 'surname', 'patronymic', 'patent_number', 'patent_expire_date'])
+  ).as('client');
+};
+
+const clientLegal = (p: ExpressionBuilder<DB, 'permit'>) => {
+  return jsonObjectFrom(
+    p
+      .selectFrom('client_legal')
+      .whereRef('client_legal.permit_id', '=', 'permit.uuid')
+      .select([
+        'company_name',
+        'address',
+        'yegrpo_number',
+        'yegrpo_expire_date',
+        'certificate_number',
+        'bank_details',
+        'account_number',
+        'number_of_cars',
+      ])
+  ).as('clientLegal');
+};
+
+const driver = (p: ExpressionBuilder<DB, 'permit'>) => {
+  return jsonObjectFrom(
+    p
+      .selectFrom('driver')
+      .whereRef('driver.permit_id', '=', 'permit.uuid')
+      .select(['name', 'surname', 'patronymic', 'driving_license_number', 'driving_license_expired_date'])
+  ).as('driver');
+};
+
+const transport = (p: ExpressionBuilder<DB, 'permit'>) => {
+  return jsonObjectFrom(
+    p
+      .selectFrom('transport')
+      .whereRef('transport.permit_id', '=', 'permit.uuid')
+      .select(['brand', 'type', 'card_number', 'card_start_date', 'card_expire_date', 'plate_number', 'foreign_plate_number'])
+  ).as('transport');
+};
 
 export const permitRepo = {
   getLastPermitUser,
+  findOne,
   edit,
   create,
   createPermit,
-  findOne,
+  getAllPermits,
 };
