@@ -16,7 +16,7 @@ export const permit = z.object({
   license_expire_date: z.string(),
   license_categories: z.string().array(),
   licenses: z.string().array(),
-  license_types: z.string().array(),
+  license_types: z.string().array().nullable(),
   container_number: z.number().int(),
   is_legal: strBool,
   // status: z.number().int(),

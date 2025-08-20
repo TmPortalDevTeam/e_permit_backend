@@ -13,13 +13,21 @@ export const permitRouter = s.router(permitContract, {
   },
   addPermit: {
     hooks: { preHandler: [auth, checkRole(['superadmin'])] },
-    handler: async ({ body, params }) => {
-      const r = await service.createPermit(body, params.code);
+    handler: async ({ body }) => {
+      const r = await service.createPermit(body);
       return {
-        status: 200, body: {
-          code: params.code,
-          data: body
-        }
+        status: 200,
+        body: { data: r }
+      };
+    },
+  },
+  getPermits: {
+    hooks: { preHandler: [auth, checkRole(['superadmin'])] },
+    handler: async () => {
+      const r = await service.getAllPermits();
+      return {
+        status: 200,
+        body: { data: r }
       };
     },
   },

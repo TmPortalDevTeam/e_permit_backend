@@ -10,13 +10,23 @@ const getAuthorityByCode = async (code: string) => {
   return result
 }
 
-const createPermit = async (d: PemritCreate, code: string) => {
-  
+const createPermit = async (d: PemritCreate) => {
+  const one = await repo.createPermit(d);
+  if (!one) throw err.InternalServerError();
 
-
+  return one;
 }
+
+const getAllPermits = async () => {
+  const one = await repo.getAllPermits();
+  if (!one) throw err.InternalServerError();
+
+  return one;
+}
+
 
 export const permitService = {
   getAuthorityByCode,
-  createPermit
+  createPermit,
+  getAllPermits,
 };

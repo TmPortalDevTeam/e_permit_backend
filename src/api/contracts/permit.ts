@@ -18,9 +18,19 @@ export const permitContract = c.router(
     },
     addPermit: {
       method: 'POST',
-      path: '/:code',
-      pathParams: z.object({ code: z.string().trim() }),
+      path: '/e-permit',
+      // path: '/e-permit/:code',
+      // pathParams: z.object({ code: z.string().trim() }),
       body: schema.create,
+      responses: {
+        200: z.object({
+          data: z.string().nullable(),
+        }),
+      },
+    },
+    getPermits: {
+      method: 'GET',
+      path: '/e-permit',
       responses: {
         200: z.object({
           data: z.any(),
@@ -29,5 +39,5 @@ export const permitContract = c.router(
     },
 
   },
-  { pathPrefix: '/api/permit' },
+  { pathPrefix: '/api/admin' },
 );
