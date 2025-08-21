@@ -4,6 +4,7 @@ import { jsonArrayFrom, jsonObjectFrom } from 'kysely/helpers/postgres';
 import { db, DB } from '@infra/db/db';
 import { PemritCreate, PermitGetAll } from '@src/api/schema/permit';
 import { LimitOffset } from '@api/schema/common';
+import { number } from 'zod';
 
 const table = 'permit';
 type Table = DB['permit'];
@@ -260,6 +261,53 @@ const getAllRejectedPermits = async (p: Filter & LimitOffset) => {
   return { count: Number(c?.c), data };
 };
 
+
+
+const getPermitByID = async (id: string) => {
+  return await db.transaction().execute(async (trx) => {
+    const one = await trx.selectFrom(table).where('uuid', '=', id).select(['views_count', 'status']).executeTakeFirst();
+    if (!one) throw err.NotFound('Permit');
+
+    const currentViewsCount: number = one?.views_count ?? 0;
+    const currentStatus: number = one?.status ?? 0;
+
+    const newViewsCount: number = currentViewsCount + 1;
+    let newStatus: number = currentStatus;
+
+    if (newViewsCount > 0 && currentStatus === 1) newStatus = 2;
+
+
+    const updated = await trx.updateTable(table)
+      .where('uuid', '=', id)
+      .set({
+        'views_count': newViewsCount,
+        'status': newStatus,
+      })
+      .executeTakeFirst();
+    if (!updated) throw err.InternalServerError('Update error');
+
+
+    const permit = await trx
+      .selectFrom(table)
+      .selectAll(table)
+      .where('uuid', '=', id)
+      .select((eb) => [
+        clientIndividual(eb),
+        clientLegal(eb),
+        driver(eb),
+        transport(eb),
+        users(eb)
+      ])
+      .execute();
+
+    if (!permit) throw err.InternalServerError();
+
+
+  })
+
+}
+
+
 export const permitRepo = {
   getLastPermitUser,
   findOne,
@@ -268,4 +316,6 @@ export const permitRepo = {
   createPermit,
   getAllPermits,
   getAllRejectedPermits,
+  getPermitByID,
+
 };

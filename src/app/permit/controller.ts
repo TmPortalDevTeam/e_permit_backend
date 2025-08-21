@@ -16,6 +16,18 @@ export const permitRouter = s.router(permitContract, {
       };
     },
   },
+  getAllQuotas: {
+    hooks: {
+      preHandler: [auth, checkRole(['superadmin'])]
+    },
+    handler: async () => {
+      const r = await service.getAllAuthority();
+      return {
+        status: 200,
+        body: { data: r }
+      };
+    },
+  },
   addPermit: {
     hooks: {
       preHandler: [auth, checkRole(['superadmin'])]
@@ -52,5 +64,16 @@ export const permitRouter = s.router(permitContract, {
       };
     },
   },
-
+  adminGetPermitID: {
+    hooks: {
+      preHandler: [auth, checkRole(['superadmin'])]
+    },
+    handler: async ({ params }) => {
+      const r = await service.adminGetPermitID(params.id);
+      return {
+        status: 200,
+        body: { data: r }
+      };
+    },
+  },
 });

@@ -1,7 +1,7 @@
 import z from 'zod';
 import { initContract } from '@ts-rest/core';
 import { permitSchema as schema } from '../schema/permit';
-import { commonQuery } from '../schema/common';
+import { commonQuery, paramsId } from '../schema/common';
 
 const c = initContract();
 
@@ -11,6 +11,15 @@ export const permitContract = c.router(
       method: 'GET',
       path: '/quotas/:code',
       pathParams: z.object({ code: z.string().trim() }),
+      responses: {
+        200: z.object({
+          data: z.any(),
+        }),
+      },
+    },
+    getAllQuotas: {
+      method: 'GET',
+      path: '/quotas',
       responses: {
         200: z.object({
           data: z.any(),
@@ -45,6 +54,14 @@ export const permitContract = c.router(
         200: z.object({
           data: z.any(),
         }),
+      },
+    },
+    adminGetPermitID: {
+      method: 'GET',
+      path: '/e-permit/:id',
+      pathParams: paramsId,
+      responses: {
+        200: z.object({ data: z.any() }),
       },
     },
   },

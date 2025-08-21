@@ -24,3 +24,6 @@ export const paramsId = z.object({ id: z.string().uuid() });
 export const paramsUuid = z.object({ uuid: z.string().uuid() });
 
 export const addFile = z.custom<{ file: any }>();
+
+export const strInt = z.number().refine((val) => Number.isInteger(val), { message: 'Must be an integer' });
+export type StrInt = z.infer<typeof strInt>;

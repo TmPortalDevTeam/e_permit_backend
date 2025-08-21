@@ -12,13 +12,9 @@ export const envSchema = z.object({
   JWT_ACCESS_EXPIRES_IN: z.any(),
   JWT_REFRESH_EXPIRES_IN: z.any(),
   DEDUCTION_AMOUNT: z.coerce.number(),
-  
-  E_PERMIT_API: z.string(),
 
-  COOKIE_SECRET: z.string(),
-  COOKIE_HTTP_ONLY: strBool.default(true),
-  COOKIE_SECURE: strBool.default(true),
-  COOKIE_SAME_SITE: z.enum(['none', 'lax', 'strict']).default('none'),
+  E_PERMIT_API: z.string(),
+  TUGDK_API: z.string(),
 });
 
 export type Env = z.infer<typeof envSchema>;
