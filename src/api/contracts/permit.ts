@@ -1,6 +1,7 @@
-import z, { string } from 'zod';
+import z from 'zod';
 import { initContract } from '@ts-rest/core';
 import { permitSchema as schema } from '../schema/permit';
+import { commonQuery } from '../schema/common';
 
 const c = initContract();
 
@@ -19,8 +20,6 @@ export const permitContract = c.router(
     addPermit: {
       method: 'POST',
       path: '/e-permit',
-      // path: '/e-permit/:code',
-      // pathParams: z.object({ code: z.string().trim() }),
       body: schema.create,
       responses: {
         200: z.object({
@@ -31,13 +30,23 @@ export const permitContract = c.router(
     getPermits: {
       method: 'GET',
       path: '/e-permit',
+      query: commonQuery,
       responses: {
         200: z.object({
           data: z.any(),
         }),
       },
     },
-
+    getAllRejectedPermits: {
+      method: 'GET',
+      path: '/rejected',
+      query: schema.getAllRejectedPermit,
+      responses: {
+        200: z.object({
+          data: z.any(),
+        }),
+      },
+    },
   },
   { pathPrefix: '/api/admin' },
 );

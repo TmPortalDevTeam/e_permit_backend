@@ -1,16 +1,92 @@
 import { err } from '@src/utils';
 import { ExpressionBuilder, Insertable, Selectable, Updateable } from 'kysely';
-import { jsonObjectFrom } from 'kysely/helpers/postgres';
+import { jsonArrayFrom, jsonObjectFrom } from 'kysely/helpers/postgres';
 import { db, DB } from '@infra/db/db';
-import { PemritCreate } from '@src/api/schema/permit';
+import { PemritCreate, PermitGetAll } from '@src/api/schema/permit';
 import { LimitOffset } from '@api/schema/common';
 
 const table = 'permit';
 type Table = DB['permit'];
-type Filter = Partial<Selectable<Table>>;
+type Filter = Partial<Selectable<Table> & PermitGetAll>;
 type Insert = Insertable<Table>;
 type Edit = Updateable<Table>;
 
+
+/** Helpers function for repo */
+const driver = (p: ExpressionBuilder<DB, 'permit'>) => {
+  return jsonArrayFrom(
+    p.selectFrom('driver')
+      .whereRef('driver.permit_id', '=', 'permit.uuid')
+      .select([
+        'uuid',
+        'name',
+        'surname',
+        'patronymic',
+        'driving_license_number',
+        'driving_license_expired_date',
+      ]))
+    .as('drivers');
+};
+
+const clientIndividual = (p: ExpressionBuilder<DB, 'permit'>) => {
+  return jsonArrayFrom(
+    p.selectFrom('client_individual')
+      .whereRef('client_individual.permit_id', '=', 'permit.uuid')
+      .select([
+        'uuid',
+        'name',
+        'surname',
+        'patronymic',
+        'patent_number',
+        'patent_expire_date'
+      ]))
+    .as('clientIndividual');
+};
+
+const clientLegal = (p: ExpressionBuilder<DB, 'permit'>) => {
+  return jsonArrayFrom(
+    p.selectFrom('client_legal')
+      .whereRef('client_legal.permit_id', '=', 'permit.uuid')
+      .select([
+        'uuid',
+        'company_name',
+        'address',
+        'yegrpo_number',
+        'yegrpo_expire_date',
+        'certificate_number',
+        'bank_details',
+        'account_number',
+        'number_of_cars',
+      ]))
+    .as('clientLegal');
+};
+
+const transport = (p: ExpressionBuilder<DB, 'permit'>) => {
+  return jsonArrayFrom(
+    p.selectFrom('transport')
+      .whereRef('transport.permit_id', '=', 'permit.uuid')
+      .select([
+        'uuid',
+        'brand',
+        'type',
+        'card_number',
+        'card_start_date',
+        'card_expire_date',
+        'plate_number',
+        'foreign_plate_number'
+      ]))
+    .as('transport');
+};
+
+const users = (p: ExpressionBuilder<DB, 'permit'>) => {
+  return p
+    .selectFrom('users')
+    .whereRef('users.uuid', '=', 'permit.auth_id')
+    .select(['name'])
+    .as('auth');
+};
+
+/** Start request database */
 const getLastPermitUser = async (userUuid: string) => {
   return await db
     .selectFrom(table)
@@ -35,7 +111,6 @@ const edit = async (uuid: string, p: Edit) => {
   return db.updateTable(table).where('uuid', '=', uuid).set(p).returningAll().executeTakeFirst();
 };
 
-//TODO 20-08-2025
 const createPermit = async (d: PemritCreate) => {
   return await db.transaction().execute(async (trx) => {
 
@@ -135,135 +210,54 @@ const createPermit = async (d: PemritCreate) => {
   });
 }
 
-// async function getAllPermits() {
-//   return await db
-//     .selectFrom('permit as p')
-//     .leftJoin('client_individual as ci', 'p.uuid', 'ci.permit_id')
-//     .leftJoin('client_legal as cl', 'p.uuid', 'cl.permit_id')
-//     .leftJoin('driver as d', 'p.uuid', 'd.permit_id')
-//     .leftJoin('transport as t', 'p.uuid', 't.permit_id')
-//     .leftJoin('users as u', 'p.auth_id', 'u.uuid')
-//     .select((eb) => [
-//       'p.uuid',
-//       'p.country',
-//       'p.type_of_cargo',
-//       'p.departure_date',
-//       'p.return_date',
-//       'p.phone',
-//       'p.email',
-//       'p.city',
-//       'p.region',
-//       'p.license_number',
-//       'p.license_expire_date',
-//       'p.license_types',
-//       'p.licenses',
-//       'p.container_number',
-//       'p.is_legal',
-//       'p.status',
-//       'p.issued_for',
-//       'p.permit_type',
-//       'p.auth_id',
-
-//       // client_individual
-//       eb.ref('ci.name').as('client_name'),
-//       eb.ref('ci.surname').as('client_surname'),
-//       eb.ref('ci.patronymic').as('client_patronymic'),
-//       'ci.patent_number',
-//       'ci.patent_expire_date',
-
-//       // client_legal
-//       'cl.company_name',
-//       'cl.address',
-//       'cl.yegrpo_number',
-//       'cl.yegrpo_expire_date',
-//       'cl.certificate_number',
-//       'cl.bank_details',
-//       'cl.account_number',
-//       'cl.number_of_cars',
-
-//       // driver
-//       eb.ref('d.name').as('driver_name'),
-//       eb.ref('d.surname').as('driver_surname'),
-//       eb.ref('d.patronymic').as('driver_patronymic'),
-//       'd.driving_license_number',
-//       'd.driving_license_expired_date',
-
-//       // transport
-//       't.brand',
-//       't.type',
-//       't.card_number',
-//       't.card_start_date',
-//       't.card_expire_date',
-//       't.plate_number',
-//       't.foreign_plate_number',
-
-//       // user
-//       eb.ref('u.name').as('auth_name'),
-//       'u.deposit_legal',
-//       'u.deposit_individual',
-//       'p.is_paid',
-//     ])
-//     .execute()
-// }
-
-const getAllPermits = async () => {
+const getAllPermits = async (p: LimitOffset) => {
+  console.error("repo: getAllPermits")
   return await db
     .selectFrom(table)
+    .selectAll(table)
+    .select((eb) => [
+      driver(eb),
+      clientIndividual(eb),
+      clientLegal(eb),
+      transport(eb),
+    ])
+    .limit(p.limit)
+    .offset(p.offset)
+    .orderBy('permit.created_at', 'desc')
+    .execute();
+};
+
+
+const getAllRejectedPermits = async (p: Filter & LimitOffset) => {
+  let q = db.selectFrom(table).where('status', '=', 7);
+
+  if (p.text) {
+    q = q.where((eb) =>
+      eb.or([
+        eb('country', 'ilike', `%${p.text}%`),
+        eb('type_of_cargo', 'ilike', `%${p.text}%`),
+      ])
+    );
+  }
+
+  const c = await q.select(o => o.fn.countAll().as('c')).executeTakeFirst();
+
+  const data = await q
     .selectAll()
     .select((eb) => [
       clientIndividual(eb),
       clientLegal(eb),
       driver(eb),
       transport(eb),
-      'auth_id',
-      'is_paid',
+      users(eb),
+      users(eb)
     ])
+    .limit(p.limit)
+    .offset(p.offset)
+    .orderBy('created_at', 'desc')
     .execute();
-};
 
-const clientIndividual = (p: ExpressionBuilder<DB, 'permit'>) => {
-  return jsonObjectFrom(
-    p
-      .selectFrom('client_individual')
-      .whereRef('client_individual.permit_id', '=', 'permit.uuid')
-      .select(['name', 'surname', 'patronymic', 'patent_number', 'patent_expire_date'])
-  ).as('client');
-};
-
-const clientLegal = (p: ExpressionBuilder<DB, 'permit'>) => {
-  return jsonObjectFrom(
-    p
-      .selectFrom('client_legal')
-      .whereRef('client_legal.permit_id', '=', 'permit.uuid')
-      .select([
-        'company_name',
-        'address',
-        'yegrpo_number',
-        'yegrpo_expire_date',
-        'certificate_number',
-        'bank_details',
-        'account_number',
-        'number_of_cars',
-      ])
-  ).as('clientLegal');
-};
-
-const driver = (p: ExpressionBuilder<DB, 'permit'>) => {
-  return jsonObjectFrom(
-    p
-      .selectFrom('driver')
-      .whereRef('driver.permit_id', '=', 'permit.uuid')
-      .select(['name', 'surname', 'patronymic', 'driving_license_number', 'driving_license_expired_date'])
-  ).as('driver');
-};
-
-const transport = (p: ExpressionBuilder<DB, 'permit'>) => {
-  return jsonObjectFrom(
-    p
-      .selectFrom('transport')
-      .whereRef('transport.permit_id', '=', 'permit.uuid')
-      .select(['brand', 'type', 'card_number', 'card_start_date', 'card_expire_date', 'plate_number', 'foreign_plate_number'])
-  ).as('transport');
+  return { count: Number(c?.c), data };
 };
 
 export const permitRepo = {
@@ -273,4 +267,5 @@ export const permitRepo = {
   create,
   createPermit,
   getAllPermits,
+  getAllRejectedPermits,
 };

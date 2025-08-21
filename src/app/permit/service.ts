@@ -1,8 +1,8 @@
-import { limitOffset } from '@api/schema/common';
+import { CommonQuery, limitOffset } from '@api/schema/common';
 import { err } from '@src/utils';
 import { permitRepo as repo } from './repo';
 import { permitServiceAPI } from '@src/infra/extrnal-api/service';
-import { PemritCreate } from '@src/api/schema/permit';
+import { GetAllRejectedPermit, PemritCreate } from '@src/api/schema/permit';
 
 
 const getAuthorityByCode = async (code: string) => {
@@ -17,11 +17,20 @@ const createPermit = async (d: PemritCreate) => {
   return one;
 }
 
-const getAllPermits = async () => {
-  const one = await repo.getAllPermits();
-  if (!one) throw err.InternalServerError();
+const getAllPermits = async (p: CommonQuery) => {
+  const { limit, offset } = limitOffset(p);
+  const permits = await repo.getAllPermits({ limit, offset });
+  if (!permits) throw err.InternalServerError();
 
-  return one;
+  return permits;
+}
+
+const getAllRejectedPermits = async (p: GetAllRejectedPermit) => {
+  const { limit, offset } = limitOffset(p);
+  const permits = await repo.getAllRejectedPermits({ ...p, limit, offset });
+  if (!permits) throw err.InternalServerError();
+
+  return permits;
 }
 
 
@@ -29,4 +38,5 @@ export const permitService = {
   getAuthorityByCode,
   createPermit,
   getAllPermits,
+  getAllRejectedPermits,
 };

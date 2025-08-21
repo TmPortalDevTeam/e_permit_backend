@@ -5,14 +5,21 @@ import { permitContract } from '@src/api/contracts/permit';
 
 export const permitRouter = s.router(permitContract, {
   getQuotas: {
-    hooks: { preHandler: [auth, checkRole(['superadmin'])] },
+    hooks: {
+      preHandler: [auth, checkRole(['superadmin'])]
+    },
     handler: async ({ params }) => {
       const r = await service.getAuthorityByCode(params.code);
-      return { status: 200, body: { data: r } };
+      return {
+        status: 200,
+        body: { data: r }
+      };
     },
   },
   addPermit: {
-    hooks: { preHandler: [auth, checkRole(['superadmin'])] },
+    hooks: {
+      preHandler: [auth, checkRole(['superadmin'])]
+    },
     handler: async ({ body }) => {
       const r = await service.createPermit(body);
       return {
@@ -22,13 +29,28 @@ export const permitRouter = s.router(permitContract, {
     },
   },
   getPermits: {
-    hooks: { preHandler: [auth, checkRole(['superadmin'])] },
-    handler: async () => {
-      const r = await service.getAllPermits();
+    hooks: {
+      preHandler: [auth, checkRole(['superadmin'])]
+    },
+    handler: async ({ query }) => {
+      const r = await service.getAllPermits(query);
       return {
         status: 200,
         body: { data: r }
       };
     },
   },
+  getAllRejectedPermits: {
+    hooks: {
+      preHandler: [auth, checkRole(['superadmin'])]
+    },
+    handler: async ({ query }) => {
+      const r = await service.getAllRejectedPermits(query);
+      return {
+        status: 200,
+        body: { data: r }
+      };
+    },
+  },
+
 });
