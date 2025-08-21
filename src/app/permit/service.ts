@@ -1,7 +1,7 @@
 import { CommonQuery, limitOffset } from '@api/schema/common';
 import { err } from '@src/utils';
 import { permitRepo as repo } from './repo';
-import { permitServiceAPI } from '@src/infra/extrnal-api/service';
+import { permitServiceAPI, tugdkServiceAPI } from '@src/infra/extrnal-api/service';
 import { GetAllRejectedPermit, PemritCreate } from '@src/api/schema/permit';
 
 
@@ -46,10 +46,26 @@ const adminGetPermitID = async (id: string) => {
   const one = await repo.findOne({ uuid: id });
   if (!one) throw err.NotFound('Permit');
 
-  const update = await repo.getPermitByID(id);
+  const currentViewsCount: number = one?.views_count ?? 0;
+  const currentStatus: number = one?.status ?? 0;
 
+  const newViewsCount: number = currentViewsCount + 1;
+  let newStatus: number = currentStatus;
 
-  return null;
+  if (newViewsCount > 0 && currentStatus === 1) newStatus = 2;
+
+  const updated = await repo.edit(id, {
+    'views_count': newViewsCount,
+    'status': newStatus,
+  });
+  if (!updated) throw err.InternalServerError('Update error');
+
+  const result = repo.getPermit(id);
+  if (!result) throw err.InternalServerError('Error find By Id');
+
+  await tugdkServiceAPI.updatePermitStatus(id, 2);
+
+  return result;
 
 }
 
