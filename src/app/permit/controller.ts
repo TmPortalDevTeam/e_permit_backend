@@ -2,6 +2,7 @@ import { s } from '@app/router';
 import { auth, checkRole } from '../admin/auth/auth.middleware';
 import { permitService as service } from './service';
 import { permitContract } from '@src/api/contracts/permit';
+import { resp } from '@src/api/schema/common';
 
 export const permitRouter = s.router(permitContract, {
   getQuotas: {
@@ -65,14 +66,20 @@ export const permitRouter = s.router(permitContract, {
     },
   },
   adminGetPermitID: {
-    hooks: {
-      preHandler: [auth, checkRole(['superadmin'])]
-    },
     handler: async ({ params }) => {
       const r = await service.adminGetPermitID(params.id);
       return {
         status: 200,
         body: { data: r }
+      };
+    },
+  },
+  adminChangestatusto3: {
+    handler: async ({ body }) => {
+      const r = await service.updatePermitStatusTo3(body.permitId);
+      return {
+        status: 200,
+        body: resp.parse({ data: r })
       };
     },
   },

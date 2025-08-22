@@ -279,6 +279,8 @@ const getPermit = async (id: string) => {
 };
 
 
+
+
 // const getPermitByID = async (id: string) => {
 //   return await db.transaction().execute(async (trx) => {
 //     const one = await trx.selectFrom(table).where('uuid', '=', id).select(['views_count', 'status']).executeTakeFirst();

@@ -1,7 +1,7 @@
 import z from 'zod';
 import { initContract } from '@ts-rest/core';
 import { permitSchema as schema } from '../schema/permit';
-import { commonQuery, paramsId } from '../schema/common';
+import { commonQuery, paramsId, paramsPermitId, resp } from '../schema/common';
 
 const c = initContract();
 
@@ -63,6 +63,12 @@ export const permitContract = c.router(
       responses: {
         200: z.object({ data: z.any() }),
       },
+    },
+    adminChangestatusto3: {
+      method: 'POST',
+      path: '/e-permit-change-statusto3',
+      body: paramsPermitId,
+      responses: { 200: resp }
     },
   },
   { pathPrefix: '/api/admin' },

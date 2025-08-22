@@ -23,7 +23,18 @@ export const paramsId = z.object({ id: z.string().uuid() });
 
 export const paramsUuid = z.object({ uuid: z.string().uuid() });
 
+export const paramsPermitId = z.object({ permitId: z.string().uuid() });
+
 export const addFile = z.custom<{ file: any }>();
 
 export const strInt = z.number().refine((val) => Number.isInteger(val), { message: 'Must be an integer' });
+
 export type StrInt = z.infer<typeof strInt>;
+
+export const resp = z.object({
+  status: strBool.default(true),
+  message: z.string().default('good job !!!'),
+  code: z.string().default('SS-10000'),
+  data: z.any()
+});
+export type Resp = z.infer<typeof resp>;

@@ -27,11 +27,12 @@ const logConfig = winston.createLogger({
     ],
 });
 
-export const loggerHttp = (l: any) => {
+export const loggerHttp = (l: any, api: string | null) => {
     const objError: Log = {
         status: l?.status ?? null,
         message: l?.message ?? null,
         data: l?.data ?? null,
+        api,
     };
 
     logConfig.error(objError);
