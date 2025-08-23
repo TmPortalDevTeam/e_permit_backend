@@ -83,4 +83,13 @@ export const permitRouter = s.router(permitContract, {
       };
     },
   },
+  adminChangestatusto4: {
+    handler: async ({ body }) => {
+      const r = await service.updatePermitStatusTo4(body.permitId);
+      return {
+        status: 200,
+        body: resp.parse({ data: r })
+      };
+    },
+  },
 });

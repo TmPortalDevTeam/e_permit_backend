@@ -70,6 +70,12 @@ export const permitContract = c.router(
       body: paramsPermitId,
       responses: { 200: resp }
     },
+    adminChangestatusto4: {
+      method: 'POST',
+      path: '/e-permit-change-statusto4',
+      body: schema.updatePermitStatusSchemaL, 
+      responses: { 200: resp }
+    },
   },
   { pathPrefix: '/api/admin' },
 );

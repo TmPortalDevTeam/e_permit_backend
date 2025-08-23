@@ -45,10 +45,10 @@ const updatePermitStatus = async (permitId: string, status: StrInt) => { // getP
   }
 };
 
-const permitSetStatus3 = async (permitId: string) => {
+const permitSetStatus = async (permitId: string, status: number) => {
   const url: string = '/api/permit/set-status';
   try {
-    const response = await apiTUGDK.post(url, { permitId, status: 3 });
+    const response = await apiTUGDK.post(url, { permitId, status });
     return response.data;
   } catch (e: any) {
     loggerHttp(e, TUGDK_API_URL + url);
@@ -66,6 +66,6 @@ export const permitServiceAPI = {
 
 export const tugdkServiceAPI = {
   updatePermitStatus,
-  permitSetStatus3,
-  
+  permitSetStatus,
+
 };

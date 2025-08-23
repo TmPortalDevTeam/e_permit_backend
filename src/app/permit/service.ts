@@ -69,18 +69,36 @@ const adminGetPermitID = async (id: string) => {
 }
 
 const updatePermitStatusTo3 = async (permitId: string) => {
+  const status: number = 3;
 
   const one = await repo.findOne({ uuid: permitId });
   if (!one) throw err.NotFound('Permit');
 
-  const updated = await repo.edit(permitId, { 'status': 3 });
-  if (!updated) throw err.InternalServerError('Failed to update permit status');
+  const updated = await repo.edit(permitId, { 'status': status });
+  if (!updated) throw err.InternalServerError(`Failed to update permit status ${status}`);
 
-  const response = await tugdkServiceAPI.permitSetStatus3(permitId);
+  const response = await tugdkServiceAPI.permitSetStatus(permitId, status);
   if (!response) throw err.InternalServerError('External API request failed');
 
   return null;
 }
+
+
+const updatePermitStatusTo4 = async (permitId: string) => {
+  const status: number = 4
+
+  const one = await repo.findOne({ uuid: permitId });
+  if (!one) throw err.NotFound('Permit');
+
+  const updated = await repo.edit(permitId, { 'status': status });
+  if (!updated) throw err.InternalServerError(`Failed to update permit status ${status}`);
+
+  const response = await tugdkServiceAPI.permitSetStatus(permitId, status);
+  if (!response) throw err.InternalServerError('External API request failed');
+
+  return null;
+}
+
 
 export const permitService = {
   getAllAuthority,
@@ -90,4 +108,5 @@ export const permitService = {
   getAllRejectedPermits,
   adminGetPermitID,
   updatePermitStatusTo3,
+  updatePermitStatusTo4
 };

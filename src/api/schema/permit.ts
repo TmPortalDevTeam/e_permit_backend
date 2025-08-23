@@ -75,6 +75,11 @@ export const permitGetAllRes = z.object({
 
 export const getAllRejectedPermit = z.object({ text: z.string() }).partial().merge(commonQuery);
 
+export const updatePermitStatusSchema = z.object({
+  permitId: z.string().uuid(),
+  status: z.number().default(0).optional(),
+});
+
 export type Permit = z.infer<typeof permit>;
 export type PermitGetAll = z.infer<typeof permitGetAll>;
 export type PemritCreate = z.infer<typeof permitCreate>;
@@ -87,6 +92,7 @@ export const permitSchema = {
   getOneRes: userGetOneRes,
   create: permitCreate,
   getAllRejectedPermit: getAllRejectedPermit,
+  updatePermitStatusSchemaL: updatePermitStatusSchema,
 };
 
 export type PermitSchema = {
