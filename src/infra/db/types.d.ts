@@ -81,6 +81,7 @@ export interface Payment {
 
 export interface Permit {
   auth_id: string | null;
+  body: string | null;
   city: string | null;
   container_number: number | null;
   country: string | null;

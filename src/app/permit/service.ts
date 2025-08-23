@@ -2,7 +2,7 @@ import { CommonQuery, limitOffset } from '@api/schema/common';
 import { err } from '@src/utils';
 import { permitRepo as repo } from './repo';
 import { permitServiceAPI, tugdkServiceAPI } from '@src/infra/extrnal-api/service';
-import { GetAllRejectedPermit, PemritCreate } from '@src/api/schema/permit';
+import { GetAllRejectedPermit, PemritCreate, UpdatePermitStatus7 } from '@src/api/schema/permit';
 
 
 const getAuthorityByCode = async (code: string) => {
@@ -99,6 +99,22 @@ const updatePermitStatusTo4 = async (permitId: string) => {
   return null;
 }
 
+const updatePermitStatusTo7 = async (d: UpdatePermitStatus7) => {
+  const one = await repo.findOne({ uuid: d.permitId });
+  if (!one) throw err.NotFound('Permit');
+
+  const updated = await repo.edit(d.permitId, {
+    'status': d.status,
+    'body': d.body
+  });
+  if (!updated) throw err.InternalServerError(`Failed to update permit status ${d.status}`);
+
+  const response = await tugdkServiceAPI.permitSetStatus7(d);
+  if (!response) throw err.InternalServerError('External API request failed');
+
+  return null;
+}
+
 
 export const permitService = {
   getAllAuthority,
@@ -108,5 +124,6 @@ export const permitService = {
   getAllRejectedPermits,
   adminGetPermitID,
   updatePermitStatusTo3,
-  updatePermitStatusTo4
+  updatePermitStatusTo4,
+  updatePermitStatusTo7,
 };

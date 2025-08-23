@@ -77,13 +77,22 @@ export const getAllRejectedPermit = z.object({ text: z.string() }).partial().mer
 
 export const updatePermitStatusSchema = z.object({
   permitId: z.string().uuid(),
-  status: z.number().default(0).optional(),
+  status: z.number().int().default(0).optional(),
 });
+
+export const updatePermitStatus7Schema = updatePermitStatusSchema
+  .pick({ permitId: true })
+  .extend({
+    status: z.number().int(),
+    body: z.string(),
+  })
+
 
 export type Permit = z.infer<typeof permit>;
 export type PermitGetAll = z.infer<typeof permitGetAll>;
 export type PemritCreate = z.infer<typeof permitCreate>;
 export type GetAllRejectedPermit = z.infer<typeof getAllRejectedPermit>;
+export type UpdatePermitStatus7 = z.infer<typeof updatePermitStatus7Schema>;
 
 export const permitSchema = {
   schema: permit,
@@ -91,13 +100,15 @@ export const permitSchema = {
   getAllRes: permitGetAllRes,
   getOneRes: userGetOneRes,
   create: permitCreate,
-  getAllRejectedPermit: getAllRejectedPermit,
-  updatePermitStatusSchemaL: updatePermitStatusSchema,
+  getAllRejectedPermit,
+  updatePermitStatusSchema,
+  updatePermitStatus7Schema
 };
 
 export type PermitSchema = {
   Schema: Permit;
   GetAll: PermitGetAll;
   Create: PemritCreate;
-  GetAllRejectedPermit: GetAllRejectedPermit
+  GetAllRejectedPermit: GetAllRejectedPermit;
+  UpdatePermitStatus7: UpdatePermitStatus7;
 };

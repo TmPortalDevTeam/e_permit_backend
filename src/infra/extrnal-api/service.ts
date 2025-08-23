@@ -3,9 +3,12 @@ import { StrInt } from '@api/schema/common';
 import { apiEpermit, apiTUGDK } from './config';
 import { loggerHttp } from '@src/utils/logger';
 import { url } from 'node:inspector';
+import { UpdatePermitStatus7 } from '@src/api/schema/permit';
 
 const PERMIT_API_URL = getEnv('E_PERMIT_API');
 const TUGDK_API_URL = getEnv('TUGDK_API');
+const API_PERMIT_SET_STATUS = '/api/permit/set-status';
+
 
 const auth_API_INET = {
   username: "admin",
@@ -35,9 +38,8 @@ const getAllAuthority = async () => {
 }
 
 const updatePermitStatus = async (permitId: string, status: StrInt) => { // getPermitByID()
-  const url: string = '/api/permit/set-status';
   try {
-    const response = await apiTUGDK.post(url, { permitId, status });
+    const response = await apiTUGDK.post(API_PERMIT_SET_STATUS, { permitId, status });
     return response.data;
   } catch (e: any) {
     loggerHttp(e, TUGDK_API_URL + url);
@@ -46,9 +48,8 @@ const updatePermitStatus = async (permitId: string, status: StrInt) => { // getP
 };
 
 const permitSetStatus = async (permitId: string, status: number) => {
-  const url: string = '/api/permit/set-status';
   try {
-    const response = await apiTUGDK.post(url, { permitId, status });
+    const response = await apiTUGDK.post(API_PERMIT_SET_STATUS, { permitId, status });
     return response.data;
   } catch (e: any) {
     loggerHttp(e, TUGDK_API_URL + url);
@@ -56,6 +57,15 @@ const permitSetStatus = async (permitId: string, status: number) => {
   }
 };
 
+const permitSetStatus7 = async (data: UpdatePermitStatus7) => {
+  try {
+    const response = await apiTUGDK.post(API_PERMIT_SET_STATUS, data);
+    return response.data;
+  } catch (e: any) {
+    loggerHttp(e, TUGDK_API_URL + url);
+    return null;
+  }
+};
 
 
 
@@ -67,5 +77,5 @@ export const permitServiceAPI = {
 export const tugdkServiceAPI = {
   updatePermitStatus,
   permitSetStatus,
-
+  permitSetStatus7
 };
