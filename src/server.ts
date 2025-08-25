@@ -1,4 +1,3 @@
-import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import fastifyHelmet from '@fastify/helmet';
 import fastifyMultipart from '@fastify/multipart';
@@ -12,14 +11,12 @@ import { router } from './app/controller';
 import { connectCheck } from './infra/db';
 import { envCheck } from './infra/env';
 import { getEnv } from './infra/env/service';
-import { bcryptService } from './utils';
+import { ZodFilter } from './utils/zod-filter';
 
 const app = Fastify({ logger: { level: 'debug' } });
 const NODE_ENV = getEnv('NODE_ENV');
 const port = getEnv('PORT');
 const host = NODE_ENV === 'dev' ? getEnv('HOST') : getEnv('HOST_PROD');
-
-const cookieSecret = getEnv('COOKIE_SECRET');
 
 const s = initServer();
 
@@ -27,6 +24,9 @@ const start = async () => {
   try {
     await envCheck();
     await connectCheck();
+
+    // const zodFilter = new ZodFilter();
+    // app.setErrorHandler((error, request, reply) => zodFilter.catch(error, request, reply));
 
     await app.register(cors, { origin: true, credentials: true });
     await app.register(fastifyHelmet);

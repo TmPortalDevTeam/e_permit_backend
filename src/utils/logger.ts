@@ -15,7 +15,7 @@ const rotateTransport = new DailyRotateFile({
     zippedArchive: false, // старые файлы не архивируем, просто удаляем
 });
 
-const logConfig = winston.createLogger({
+export const logger = winston.createLogger({
     level: "error",
     format: winston.format.combine(
         winston.format.timestamp(),
@@ -35,5 +35,5 @@ export const loggerHttp = (l: any, api: string | null) => {
         api,
     };
 
-    logConfig.error(objError);
+    logger.error(objError);
 };

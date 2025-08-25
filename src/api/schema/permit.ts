@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { commonQuery, strBool } from './common';
+import { commonQuery, strBool, strInt } from './common';
 
 export const permit = z.object({
   uuid: z.string().uuid(),
@@ -55,8 +55,23 @@ export const permit = z.object({
   legal_number_of_cars: z.number().int(),
 });
 
-export const permitCreate = permit.omit({ uuid: true })
+export const permitCreate = permit.omit({ uuid: true });
 export const permitGetOneRes = z.object({ data: z.string() });
+
+export const permitExternalApi = z.object({
+  uuid: z.string().uuid(),
+  issued_for: z.string(),
+  permit_type: strInt,
+  permit_year: strInt,
+  plate_number: z.string(),
+  // plate_number2: z.string(),
+  company_name: z.string(),
+  company_id: z.string(),
+  departure_country: z.string(),
+  arrival_country: z.string(),
+});
+export const permitCreateExternalApi = permitExternalApi.omit({ uuid: true });
+
 
 export const userGetOneRes = permit;
 export const permitGetAll = permit.extend({ text: z.string() }).partial().merge(commonQuery);
@@ -98,6 +113,8 @@ export type PemritCreate = z.infer<typeof permitCreate>;
 export type GetAllRejectedPermit = z.infer<typeof getAllRejectedPermit>;
 export type UpdatePermitStatus7 = z.infer<typeof updatePermitStatus7Schema>;
 export type PermitStatusUpdate = z.infer<typeof permitStatusUpdateRequestSchema>;
+export type PermitCreateExternalApi = z.infer<typeof permitCreateExternalApi>;
+
 
 export const permitSchema = {
   schema: permit,
@@ -108,7 +125,9 @@ export const permitSchema = {
   getAllRejectedPermit,
   updatePermitStatus: updatePermitStatusSchema,
   updatePermitStatus7: updatePermitStatus7Schema,
-  permitStatusUpdateRequest: permitStatusUpdateRequestSchema
+  permitStatusUpdateRequest: permitStatusUpdateRequestSchema,
+  permitCreateExternalApi,
+
 };
 
 export type PermitSchema = {
@@ -118,4 +137,5 @@ export type PermitSchema = {
   GetAllRejectedPermit: GetAllRejectedPermit;
   UpdatePermitStatus7: UpdatePermitStatus7;
   PermitStatusUpdateRequest: PermitStatusUpdate;
+  PermitCreateExternalApi: PermitCreateExternalApi;
 };

@@ -2,28 +2,14 @@ import { CommonQuery, limitOffset, resp } from '@api/schema/common';
 import { err } from '@src/utils';
 import { permitRepo as repo } from './repo';
 import { permitServiceAPI, tugdkServiceAPI } from '@src/infra/extrnal-api/service';
-import { GetAllRejectedPermit, PemritCreate, PermitStatusUpdate, UpdatePermitStatus7 } from '@src/api/schema/permit';
-
-
-const getAuthorityByCode = async (code: string) => {
-  const result = await permitServiceAPI.getAuthorityByCode(code);
-  if (!result) throw err.InternalServerError('Internal api mistake, please say admin');
-
-  return result
-}
-
-const getAllAuthority = async () => {
-  const result = await permitServiceAPI.getAllAuthority();
-  if (!result) throw err.InternalServerError('Internal api mistake, please say admin');
-
-  return result
-}
+import { GetAllRejectedPermit, PemritCreate, PermitCreateExternalApi, PermitStatusUpdate, UpdatePermitStatus7 } from '@src/api/schema/permit';
 
 const createPermit = async (d: PemritCreate) => {
   const one = await repo.createPermit(d);
-  if (!one) throw err.InternalServerError('Do not create permit and other data');
-
-  return one;
+  if (!one) {
+    throw err.InternalServerError('Do not create permit and other data');
+  }
+  return resp.parse({ data: one });
 }
 
 const getAllPermits = async (p: CommonQuery) => {
@@ -31,18 +17,18 @@ const getAllPermits = async (p: CommonQuery) => {
   const permits = await repo.getAllPermits({ limit, offset });
   if (!permits) throw err.InternalServerError();
 
-  return permits;
+  return resp.parse({ data: permits });
 }
 
-const getAllRejectedPermits = async (p: GetAllRejectedPermit) => {
+const rejectedPermits = async (p: GetAllRejectedPermit) => {
   const { limit, offset } = limitOffset(p);
   const permits = await repo.getAllRejectedPermits({ ...p, limit, offset });
   if (!permits) throw err.InternalServerError();
 
-  return permits;
+  return resp.parse({ data: permits });
 }
 
-const adminGetPermitID = async (id: string) => {
+const getPermitByID = async (id: string) => {
   const one = await repo.findOne({ uuid: id });
   if (!one) throw err.NotFound('Permit');
 
@@ -65,7 +51,7 @@ const adminGetPermitID = async (id: string) => {
 
   await tugdkServiceAPI.updatePermitStatus(id, 2);
 
-  return result;
+  return resp.parse({ data: result });
 }
 
 const updatePermitStatusTo3 = async (permitId: string) => {
@@ -80,9 +66,8 @@ const updatePermitStatusTo3 = async (permitId: string) => {
   const response = await tugdkServiceAPI.permitSetStatus(permitId, status);
   if (!response) throw err.InternalServerError('External API request failed');
 
-  return null;
+  return resp.parse({ data: null });
 }
-
 
 const updatePermitStatusTo4 = async (permitId: string) => {
   const status: number = 4
@@ -96,7 +81,7 @@ const updatePermitStatusTo4 = async (permitId: string) => {
   const response = await tugdkServiceAPI.permitSetStatus(permitId, status);
   if (!response) throw err.InternalServerError('External API request failed');
 
-  return null;
+  return resp.parse({ data: null });
 }
 
 const setPermitStatus = async (d: UpdatePermitStatus7) => {
@@ -130,26 +115,81 @@ const changePermitStatus = async (d: PermitStatusUpdate) => {
 
 const getPermits = async () => {
   const response = await permitServiceAPI.getPermits();
-  if (!response) throw err.InternalServerError('Failed to fetch data from external API');
+  if (!response) throw err.InternalServerError('Failed to read response body');
 
-  const content = response?.content;
-  if (!content) throw err.InternalServerError('Failed to fetch data.content from external API');
+  const content = response.content;
+
+  if (content === undefined || content === null) {
+    throw err.InternalServerError('Content field is null or undefined');
+  }
 
   return resp.parse({ data: content })
 }
 
+const addPermitsExternalApi = async (d: PermitCreateExternalApi) => {
+  const response = await permitServiceAPI.addPermits(d);
+  if (!response) {
+    throw err.InternalServerError('Failed to add permit to external API');
+  }
+  return resp.parse({ data: response });
+}
+
+const getPermitsByID = async (permitID: string) => {
+  const response = await permitServiceAPI.getPermitsByID(permitID);
+  if (!response) throw err.InternalServerError('External API responded with non-OK status');
+
+  return resp.parse({ data: response });
+}
+
+
+
+
+
+
+const getAuthorityByCode = async (code: string) => {
+  const result = await permitServiceAPI.getAuthorityByCode(code);
+  if (!result) throw err.InternalServerError('Internal api mistake, please say admin');
+
+  return result
+}
+
+const getAllAuthority = async () => {
+  const result = await permitServiceAPI.getAllAuthority();
+  if (!result) throw err.InternalServerError('Internal api mistake, please say admin');
+
+  return result
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 export const permitService = {
-  getAllAuthority,
-  getAuthorityByCode,
   createPermit,
   getAllPermits,
-  getAllRejectedPermits,
-  adminGetPermitID,
+  rejectedPermits,
+
+
+  getPermitsByID,
+
+  getAllAuthority,
+  getAuthorityByCode,
+  getPermitByID,
   updatePermitStatusTo3,
   updatePermitStatusTo4,
   setPermitStatus,
   changePermitStatus,
   getPermits,
+  addPermitsExternalApi,
 };
