@@ -94,11 +94,20 @@ export const permitRouter = s.router(permitContract, {
   },
   adminChangestatusto7: {
     handler: async ({ body }) => {
-      const r = await service.updatePermitStatusTo7(body);
-      return {
-        status: 200,
-        body: resp.parse({ data: r })
-      };
+      const r = await service.setPermitStatus(body);
+      return { status: 200, body: r };
+    },
+  },
+  adminChangePermitStatus: {
+    handler: async ({ body }) => {
+      const r = await service.changePermitStatus(body);
+      return { status: 200, body: r };
+    },
+  },
+  adminPermits: {
+    handler: async () => {
+      const r = await service.getPermits();
+      return { status: 200, body: r };
     },
   },
 });

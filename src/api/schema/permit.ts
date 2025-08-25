@@ -87,12 +87,17 @@ export const updatePermitStatus7Schema = updatePermitStatusSchema
     body: z.string(),
   })
 
+export const permitStatusUpdateRequestSchema = updatePermitStatus7Schema.pick({
+  permitId: true,
+  status: true
+})
 
 export type Permit = z.infer<typeof permit>;
 export type PermitGetAll = z.infer<typeof permitGetAll>;
 export type PemritCreate = z.infer<typeof permitCreate>;
 export type GetAllRejectedPermit = z.infer<typeof getAllRejectedPermit>;
 export type UpdatePermitStatus7 = z.infer<typeof updatePermitStatus7Schema>;
+export type PermitStatusUpdate = z.infer<typeof permitStatusUpdateRequestSchema>;
 
 export const permitSchema = {
   schema: permit,
@@ -101,8 +106,9 @@ export const permitSchema = {
   getOneRes: userGetOneRes,
   create: permitCreate,
   getAllRejectedPermit,
-  updatePermitStatusSchema,
-  updatePermitStatus7Schema
+  updatePermitStatus: updatePermitStatusSchema,
+  updatePermitStatus7: updatePermitStatus7Schema,
+  permitStatusUpdateRequest: permitStatusUpdateRequestSchema
 };
 
 export type PermitSchema = {
@@ -111,4 +117,5 @@ export type PermitSchema = {
   Create: PemritCreate;
   GetAllRejectedPermit: GetAllRejectedPermit;
   UpdatePermitStatus7: UpdatePermitStatus7;
+  PermitStatusUpdateRequest: PermitStatusUpdate;
 };
