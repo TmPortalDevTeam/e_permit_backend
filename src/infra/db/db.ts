@@ -14,6 +14,7 @@ export type DB = Database & {
     users: Database['users']
     permits: Database['permit']
     client_legals: Database['client_legal']
+    epermit_ledger_permits: Database['epermit_ledger_permits']
 };
 
 export const db = new Kysely<DB>({ dialect, log: ['query'] });

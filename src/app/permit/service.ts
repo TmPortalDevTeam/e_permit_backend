@@ -1,8 +1,18 @@
 import { CommonQuery, limitOffset, resp } from '@api/schema/common';
+import { MultipartFile } from '@fastify/multipart';
 import { err } from '@src/utils';
 import { permitRepo as repo } from './repo';
 import { permitServiceAPI, tugdkServiceAPI } from '@src/infra/extrnal-api/service';
-import { GetAllRejectedPermit, PemritCreate, PermitCreateExternalApi, PermitStatusUpdate, UpdatePermitStatus7 } from '@src/api/schema/permit';
+import {
+  CreateAuthoritiesExternalApi,
+  GetAllRejectedPermit,
+  PemritCreate,
+  PermitCreateExternalApi,
+  PermitStatusUpdate,
+  UpdatePermitStatus7
+} from '@src/api/schema/permit';
+import { fileManagerService } from '@src/infra/file-manager';
+import { sendEmailWithNodemailer } from '@src/utils/nodemailer';
 
 const createPermit = async (d: PemritCreate) => {
   const one = await repo.createPermit(d);
@@ -136,22 +146,88 @@ const addPermitsExternalApi = async (d: PermitCreateExternalApi) => {
 
 const getPermitsByID = async (permitID: string) => {
   const response = await permitServiceAPI.getPermitsByID(permitID);
-  if (!response) throw err.InternalServerError('External API responded with non-OK status');
+  if (!response) throw err.InternalServerError('External API responded with non-OK status getPermitByID');
+
+  return resp.parse({ data: response });
+}
+
+const revokePermit = async (permitID: string) => {
+  const response = await permitServiceAPI.revokePermit(permitID);
+  if (!response) throw err.InternalServerError('Failed to send request to external API revoke');
+
+  return resp.parse({ data: response });
+}
+
+const getPermitPDF = async (permitID: string) => {
+  const response = await permitServiceAPI.getPermitPDF(permitID);
+  if (!response) throw err.InternalServerError('Failed to send request to external API get permit pdf');
+
+  return resp.parse({ data: response });
+}
+
+const findPermit = async (permitID: string) => {
+  const response = await permitServiceAPI.findPermit(permitID);
+  if (!response) throw err.InternalServerError('Failed to send request to external API find permit');
+
+  return resp.parse({ data: response });
+}
+
+const getAuthorities = async () => {
+  const response = await permitServiceAPI.getAuthorities();
+  if (!response) throw err.InternalServerError('Failed to send request to external API getAuthorities');
+
+  return resp.parse({ data: response });
+}
+
+const postAuthorities = async (d: CreateAuthoritiesExternalApi) => {
+  const response = await permitServiceAPI.postAuthorities(d);
+  if (!response) throw err.InternalServerError('Failed to send request to external API getAuthorities');
+
+  return resp.parse({ data: response });
+}
+
+const getAuthorityByCode = async (authorityCode: string) => {
+  const response = await permitServiceAPI.getAuthorityByCode(authorityCode);
+  if (!response) throw err.InternalServerError('Failed to send request to external API get Authority By Code');
 
   return resp.parse({ data: response });
 }
 
 
+//
+//
+
+export const sendEmail = async (ledgerID: string, pdf: MultipartFile) => {
+  // const one = await repo.getOne(ledgerID);
+  // if (!one) throw err.NotFound();
+
+  const buffer = await pdf.toBuffer();
+  if (!buffer) throw err.BadRequest();
+
+  const file = await fileManagerService.save({ meta: pdf, buffer, folder: 'public' });
+
+  const emailStatus: boolean = await sendEmailWithNodemailer('ismayylata@gmail.com', file);
+  if (!emailStatus) throw err.BadGateway('Email send pdf file error, please say admin')
+
+  console.log(ledgerID)
+  console.log(file)
+  console.log(emailStatus)
+  // // await repo.edit(id, { avatar: file });
+
+  // if (one.avatar) {
+  //   await fileManagerService.remove({ fileName: one.avatar, folder: 'public' });
+  // }
+
+  // const resData = await repo.getOne(ledgerID);
+  // if (!resData) throw err.NotFound();
+  // return resData;
+  return resp.parse({ data: null });
+};
 
 
 
 
-const getAuthorityByCode = async (code: string) => {
-  const result = await permitServiceAPI.getAuthorityByCode(code);
-  if (!result) throw err.InternalServerError('Internal api mistake, please say admin');
 
-  return result
-}
 
 const getAllAuthority = async () => {
   const result = await permitServiceAPI.getAllAuthority();
@@ -168,19 +244,18 @@ const getAllAuthority = async () => {
 
 
 
-
-
-
-
-
-
-
 export const permitService = {
   createPermit,
   getAllPermits,
   rejectedPermits,
-
-
+  revokePermit,
+  getPermitPDF,
+  findPermit,
+  getAuthorities,
+  postAuthorities,
+  //
+  //
+  sendEmail,
   getPermitsByID,
 
   getAllAuthority,

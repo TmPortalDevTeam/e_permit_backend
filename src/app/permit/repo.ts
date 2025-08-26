@@ -4,7 +4,6 @@ import { jsonArrayFrom, jsonObjectFrom } from 'kysely/helpers/postgres';
 import { db, DB } from '@infra/db/db';
 import { PemritCreate, PermitGetAll } from '@src/api/schema/permit';
 import { LimitOffset } from '@api/schema/common';
-import { number } from 'zod';
 
 const table = 'permit';
 type Table = DB['permit'];
@@ -86,6 +85,8 @@ const users = (p: ExpressionBuilder<DB, 'permit'>) => {
     .select(['name'])
     .as('auth');
 };
+
+
 
 /** Start request database */
 const getLastPermitUser = async (userUuid: string) => {
@@ -278,7 +279,38 @@ const getPermit = async (id: string) => {
   return data;
 };
 
+// const getPermitCompanyIDAndEmail = async (ledgerID: string): Promise<{ companyID: string; email: string } | null> => {
+//   const result = await db
+//     .selectFrom('epermit_ledger_permits as elp')
+//     .innerJoin('permit as p', 'elp.company_id', 'p.uuid')
+//     .select((eb) => [
+//       eb.ref('elp.company_id').as('companyID'),
+//       eb.ref('p.email').as('email'),
+//     ])
+//     .where('id', '=', ledgerID)
+//     .executeTakeFirst();
 
+//   return {
+//     companyID: result.companyID,
+//     email: result.email,
+//   };
+// }
+// func (r *repository) GetPermitCompanyIDAndEmail(ctx context.Context, ledgerID uuid.UUID) (uuid.UUID, string, error) {
+// 	var companyID uuid.UUID
+// 	var email string
+
+// 	query := `
+//         SELECT elp.company_id, p.email
+//         FROM epermit_ledger_permits elp
+//         JOIN permit p ON elp.company_id::text = p.uuid::text
+//         WHERE elp.id = $1
+//     `
+// 	err := r.client.QueryRow(ctx, query, ledgerID).Scan(&companyID, &email)
+// 	if err != nil {
+// 		return uuid.Nil, "", fmt.Errorf("failed to retrieve company_id or email for ledgerID %s: %w", ledgerID, err)
+// 	}
+// 	return companyID, email, nil
+// }
 
 
 // const getPermitByID = async (id: string) => {
@@ -335,5 +367,4 @@ export const permitRepo = {
   getAllPermits,
   getAllRejectedPermits,
   getPermit,
-
 };

@@ -3,7 +3,7 @@ import { StrInt } from '@api/schema/common';
 import { apiEpermit, apiTUGDK } from './config';
 import { loggerHttp } from '@src/utils/logger';
 import { url } from 'node:inspector';
-import { PermitCreateExternalApi, UpdatePermitStatus7 } from '@src/api/schema/permit';
+import { CreateAuthoritiesExternalApi, PermitCreateExternalApi, UpdatePermitStatus7 } from '@src/api/schema/permit';
 import { err } from '@src/utils';
 
 const PERMIT_API_URL = getEnv('E_PERMIT_API');
@@ -23,16 +23,7 @@ const basicAuth = {
 };
 
 
-const getAuthorityByCode = async (code: string) => {
-  const url: string = `/authorities/${code}`;
-  try {
-    const response = await apiEpermit.get(url, basicAuth);
-    return response.data;
-  } catch (e: any) {
-    loggerHttp(e, PERMIT_API_URL + url);
-    return null;
-  }
-}
+
 
 const getAllAuthority = async () => {
   const url: string = '/authorities';
@@ -108,6 +99,73 @@ const getPermitsByID = async (permitID: string) => {
   }
 };
 
+const revokePermit = async (permitID: string) => {
+  const url: string = `/permits/${permitID}`;
+  try {
+    const response = await apiEpermit.delete(url, basicAuth);
+    return response.data;
+  } catch (e: any) {
+    loggerHttp(e, PERMIT_API_URL + url);
+    return null;
+  }
+};
+
+const getPermitPDF = async (permitID: string) => {
+  const url: string = `/permits/${permitID}/pdf`;
+  try {
+    const response = await apiEpermit.get(url, basicAuth);
+    return response.data;
+  } catch (e: any) {
+    loggerHttp(e, PERMIT_API_URL + url);
+    return null;
+  }
+};
+
+const findPermit = async (permitID: string) => {
+  const url: string = `/permits/find/${permitID}`;
+  try {
+    const response = await apiEpermit.get(url, basicAuth);
+    return response.data;
+  } catch (e: any) {
+    loggerHttp(e, PERMIT_API_URL + url);
+    return null;
+  }
+};
+
+const getAuthorities = async () => {
+  const url: string = '/authorities';
+  try {
+    const response = await apiEpermit.get(url, basicAuth);
+    return response.data;
+  } catch (e: any) {
+    loggerHttp(e, PERMIT_API_URL + url);
+    return null;
+  }
+};
+
+const postAuthorities = async (data: CreateAuthoritiesExternalApi) => {
+  const url: string = '/authorities';
+  try {
+    const response = await apiEpermit.post(url, data, basicAuth);
+    return response.data;
+  } catch (e: any) {
+    loggerHttp(e, PERMIT_API_URL + url);
+    return null;
+  }
+};
+
+const getAuthorityByCode = async (authorityCode: string) => {
+  const url: string = `/authorities/${authorityCode}`;
+  try {
+    const response = await apiEpermit.get(url, basicAuth);
+    return response.data;
+  } catch (e: any) {
+    loggerHttp(e, PERMIT_API_URL + url);
+    return null;
+  }
+}
+
+
 
 
 
@@ -118,6 +176,13 @@ export const permitServiceAPI = {
   getPermits,
   addPermits,
   getPermitsByID,
+  revokePermit,
+  getPermitPDF,
+  findPermit,
+  getAuthorities,
+  postAuthorities,
+
+
 };
 
 export const tugdkServiceAPI = {

@@ -72,6 +72,11 @@ export interface Driver {
   uuid: Generated<string>;
 }
 
+export interface EpermitLedgerPermits {
+  "company_id ": string;
+  "id ": string;
+}
+
 export interface Payment {
   amount: number | null;
   order_id: string | null;
@@ -161,6 +166,7 @@ export interface DB {
   client_individual: ClientIndividual;
   client_legal: ClientLegal;
   driver: Driver;
+  epermit_ledger_permits: EpermitLedgerPermits;
   payment: Payment;
   permit: Permit;
   permit_history: PermitHistory;
