@@ -1,6 +1,7 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
 import { authSchema as schema } from '../schema/auth';
+import { resp } from '../schema/common';
 
 const c = initContract();
 
@@ -10,24 +11,18 @@ export const authContract = c.router(
       method: 'POST',
       path: '/login',
       body: schema.login,
-      responses: {
-        201: schema.loginRes,
-      },
+      responses: { 200: resp }
     },
-    me: {
+    getUserData: {
       method: 'GET',
-      path: '/me',
-      responses: {
-        200: schema.meRes,
-      },
+      path: '/get-user-data',
+      responses: { 200: resp }
     },
     logout: {
       method: 'GET',
       path: '/logout',
-      responses: {
-        200: z.any(),
-      },
+      responses: { 200: z.any() },
     },
   },
-  { pathPrefix: '/api/auth' },
+  { pathPrefix: '/api/admin' },
 );

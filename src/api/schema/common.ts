@@ -37,10 +37,10 @@ export const strInt = z.union([z.string(), z.number().int()]).refine((v) => Numb
 export type StrInt = z.infer<typeof strInt>;
 
 export const respBody = z.any();
+
 export const resp = z.object({
   status: strBool.default(true),
   message: z.string().default('good job !!!'),
   code: z.string().default('SS-10000'),
   data: z.any().default(null)
 });
-

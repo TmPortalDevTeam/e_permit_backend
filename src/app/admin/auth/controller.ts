@@ -10,11 +10,11 @@ export const authRouter = s.router(authContract, {
       return { status: 201, body: r };
     },
   },
-  me: {
+  getUserData: {
     hooks: { preHandler: auth },
     handler: async ({ request }) => {
       const user = request.user;
-      const r = await authService.me(user!.uuid);
+      const r = await authService.getUserData(user!.uuid);
       return { status: 200, body: r };
     },
   },
