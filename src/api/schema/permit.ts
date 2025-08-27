@@ -71,13 +71,13 @@ export const permitExternalApi = z.object({
 });
 export const permitCreateExternalApi = permitExternalApi.omit({ uuid: true });
 
-export const authoritiesExternalApi = z.object({
-  uuid: z.string().uuid(),
-  public_api_uri: z.string(),
-  code: z.string(),
-  name: z.string(),
+export const permitActivity = z.object({
+  activity_type: z.enum(['ENTRANCE', 'EXIT ']),
+  activity_timestamp: z.string(),
+  activity_details: z.string(),
 });
-export const createAuthoritiesExternalApi = authoritiesExternalApi.omit({ uuid: true });
+export const permitActivityCreate = permitActivity;
+
 
 export const userGetOneRes = permit;
 export const permitGetAll = permit.extend({ text: z.string() }).partial().merge(commonQuery);
@@ -120,7 +120,7 @@ export type GetAllRejectedPermit = z.infer<typeof getAllRejectedPermit>;
 export type UpdatePermitStatus7 = z.infer<typeof updatePermitStatus7Schema>;
 export type PermitStatusUpdate = z.infer<typeof permitStatusUpdateRequestSchema>;
 export type PermitCreateExternalApi = z.infer<typeof permitCreateExternalApi>;
-export type CreateAuthoritiesExternalApi = z.infer<typeof createAuthoritiesExternalApi>;
+export type PermitActivityCreate = z.infer<typeof permitActivityCreate>;
 
 
 export const permitSchema = {
@@ -134,8 +134,7 @@ export const permitSchema = {
   updatePermitStatus7: updatePermitStatus7Schema,
   permitStatusUpdateRequest: permitStatusUpdateRequestSchema,
   permitCreateExternalApi,
-  createAuthoritiesExternalApi,
-
+  permitActivityCreate: permitActivityCreate,
 };
 
 export type PermitSchema = {
@@ -146,5 +145,5 @@ export type PermitSchema = {
   UpdatePermitStatus7: UpdatePermitStatus7;
   PermitStatusUpdateRequest: PermitStatusUpdate;
   PermitCreateExternalApi: PermitCreateExternalApi;
-  CreateAuthoritiesExternalApi: CreateAuthoritiesExternalApi;
+  PermitActivityCreate: PermitActivityCreate;
 };

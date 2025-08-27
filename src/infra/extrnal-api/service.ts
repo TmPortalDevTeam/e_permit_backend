@@ -2,18 +2,12 @@ import { getEnv } from '@src/infra/env/service';
 import { StrInt } from '@api/schema/common';
 import { apiEpermit, apiTUGDK } from './config';
 import { loggerHttp } from '@src/utils/logger';
-import { url } from 'node:inspector';
-import { CreateAuthoritiesExternalApi, PermitCreateExternalApi, UpdatePermitStatus7 } from '@src/api/schema/permit';
-import { err } from '@src/utils';
+import { PermitActivityCreate, PermitCreateExternalApi, UpdatePermitStatus7 } from '@src/api/schema/permit';
+import { AuthoritiesCreate, AuthoritiesQuotaCreate } from '@src/api/schema/authorities';
 
 const PERMIT_API_URL = getEnv('E_PERMIT_API');
 const TUGDK_API_URL = getEnv('TUGDK_API');
 const API_PERMIT_SET_STATUS = '/api/permit/set-status';
-
-// const auth_API_INET = {
-//   username: "admin",
-//   password: "Adm1n_TM_S3cr3t!",
-// }
 
 const basicAuth = {
   auth: {
@@ -21,20 +15,6 @@ const basicAuth = {
     password: "Adm1n_TM_S3cr3t!",
   }
 };
-
-
-
-
-const getAllAuthority = async () => {
-  const url: string = '/authorities';
-  try {
-    const response = await apiEpermit.get(url, basicAuth);
-    return response.data;
-  } catch (e: any) {
-    loggerHttp(e, PERMIT_API_URL + url);
-    return null;
-  }
-}
 
 const updatePermitStatus = async (permitId: string, status: StrInt) => { // getPermitByID()
   try {
@@ -132,6 +112,8 @@ const findPermit = async (permitID: string) => {
   }
 };
 
+
+/** Authorities */
 const getAuthorities = async () => {
   const url: string = '/authorities';
   try {
@@ -143,7 +125,7 @@ const getAuthorities = async () => {
   }
 };
 
-const postAuthorities = async (data: CreateAuthoritiesExternalApi) => {
+const postAuthorities = async (data: AuthoritiesCreate) => {
   const url: string = '/authorities';
   try {
     const response = await apiEpermit.post(url, data, basicAuth);
@@ -165,13 +147,32 @@ const getAuthorityByCode = async (authorityCode: string) => {
   }
 }
 
+const addAuthoritiesQuota = async (code: string, data: AuthoritiesQuotaCreate) => {
+  const url: string = `/authorities/${code}/quotas`;
+  try {
+    const response = await apiEpermit.post(url, data, basicAuth);
+    return response.data;
+  } catch (e: any) {
+    loggerHttp(e, PERMIT_API_URL + url);
+    return null;
+  }
+}
 
+const addPermitActivities = async (permitID: string, data: PermitActivityCreate) => {
+  const url: string = `/permits/${permitID}/activities`;
+  try {
+    const response = await apiEpermit.post(url, data, basicAuth);
+    return response.data;
+  } catch (e: any) {
+    loggerHttp(e, PERMIT_API_URL + url);
+    return null;
+  }
+}
 
 
 
 
 export const permitServiceAPI = {
-  getAllAuthority,
   getAuthorityByCode,
   getPermits,
   addPermits,
@@ -181,8 +182,8 @@ export const permitServiceAPI = {
   findPermit,
   getAuthorities,
   postAuthorities,
-
-
+  addAuthoritiesQuota,
+  addPermitActivities,
 };
 
 export const tugdkServiceAPI = {

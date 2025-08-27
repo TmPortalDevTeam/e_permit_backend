@@ -4,21 +4,22 @@ import { err } from '@src/utils';
 import { permitRepo as repo } from './repo';
 import { permitServiceAPI, tugdkServiceAPI } from '@src/infra/extrnal-api/service';
 import {
-  CreateAuthoritiesExternalApi,
   GetAllRejectedPermit,
   PemritCreate,
+  PermitActivityCreate,
   PermitCreateExternalApi,
   PermitStatusUpdate,
   UpdatePermitStatus7
 } from '@src/api/schema/permit';
 import { fileManagerService } from '@src/infra/file-manager';
 import { sendEmailWithNodemailer } from '@src/utils/nodemailer';
+import { AuthoritiesCreate, AuthoritiesQuotaCreate } from '@src/api/schema/authorities';
+import { any, bigint, number } from 'zod';
 
 const createPermit = async (d: PemritCreate) => {
   const one = await repo.createPermit(d);
-  if (!one) {
-    throw err.InternalServerError('Do not create permit and other data');
-  }
+  if (!one) throw err.InternalServerError('Do not create permit and other data');
+
   return resp.parse({ data: one });
 }
 
@@ -179,7 +180,7 @@ const getAuthorities = async () => {
   return resp.parse({ data: response });
 }
 
-const postAuthorities = async (d: CreateAuthoritiesExternalApi) => {
+const postAuthorities = async (d: AuthoritiesCreate) => {
   const response = await permitServiceAPI.postAuthorities(d);
   if (!response) throw err.InternalServerError('Failed to send request to external API getAuthorities');
 
@@ -193,10 +194,21 @@ const getAuthorityByCode = async (authorityCode: string) => {
   return resp.parse({ data: response });
 }
 
+const addQuota = async (code: string, d: AuthoritiesQuotaCreate) => {
+  const response = await permitServiceAPI.addAuthoritiesQuota(code, d);
+  if (!response) throw err.InternalServerError('Failed to send request to external API add Authority Quota');
 
-//
-//
+  return resp.parse({ data: response });
+}
 
+const AddPermitActivities = async (permitID: string, d: PermitActivityCreate) => {
+  const response = await permitServiceAPI.addPermitActivities(permitID, d);
+  if (!response) throw err.InternalServerError('Failed to send request to external API add Permit Activities');
+
+  return resp.parse({ data: response });
+}
+
+// do not finish fiend email need for send this email
 export const sendEmail = async (ledgerID: string, pdf: MultipartFile) => {
   // const one = await repo.getOne(ledgerID);
   // if (!one) throw err.NotFound();
@@ -224,24 +236,20 @@ export const sendEmail = async (ledgerID: string, pdf: MultipartFile) => {
   return resp.parse({ data: null });
 };
 
+const getPermitStatus = async (permitUUID: string) => {
+  const one = await repo.getOne(permitUUID);
+  if (!one) throw err.NotFound('Permit not found');
 
+  const { status, is_legal, sum } = one;
+  const response = {
+    permit_uuid: permitUUID,
+    status: one.status,
+  };
 
+  if (!is_legal && status === 3) return { ...response, sum };
 
-
-
-const getAllAuthority = async () => {
-  const result = await permitServiceAPI.getAllAuthority();
-  if (!result) throw err.InternalServerError('Internal api mistake, please say admin');
-
-  return result
+  return response;
 }
-
-
-
-
-
-
-
 
 
 export const permitService = {
@@ -253,12 +261,11 @@ export const permitService = {
   findPermit,
   getAuthorities,
   postAuthorities,
-  //
-  //
+  addQuota,
+  AddPermitActivities,
   sendEmail,
   getPermitsByID,
-
-  getAllAuthority,
+  getPermitStatus,
   getAuthorityByCode,
   getPermitByID,
   updatePermitStatusTo3,

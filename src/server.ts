@@ -11,7 +11,7 @@ import { router } from './app/controller';
 import { connectCheck } from './infra/db';
 import { envCheck } from './infra/env';
 import { getEnv } from './infra/env/service';
-import { ZodFilter } from './utils/zod-filter';
+
 
 const app = Fastify({ logger: { level: 'debug' } });
 const NODE_ENV = getEnv('NODE_ENV');

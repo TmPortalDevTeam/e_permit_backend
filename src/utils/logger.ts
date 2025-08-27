@@ -11,8 +11,8 @@ const rotateTransport = new DailyRotateFile({
     datePattern: "YYYY-MM-DD",
     level: "error",
     maxSize: "5m",
-    maxFiles: "2d",      // хранить только последние 14 дней
-    zippedArchive: false, // старые файлы не архивируем, просто удаляем
+    maxFiles: "2d",      // keep only the last 14 days
+    zippedArchive: false, // We do not archive old files, we just delete them
 });
 
 export const logger = winston.createLogger({

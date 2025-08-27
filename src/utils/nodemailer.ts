@@ -5,8 +5,6 @@ import { fileManagerService } from '@src/infra/file-manager';
 
 const emailName = getEnv('EMAIL_USER');
 
-// sent email count limited 
-
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,

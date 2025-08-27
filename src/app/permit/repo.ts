@@ -105,6 +105,14 @@ const findOne = async (p: Filter) => {
   return q.selectAll().executeTakeFirst();
 };
 
+const getOne = async (id: string) => {
+  return db
+    .selectFrom(table)
+    .where('uuid', '=', id)
+    .selectAll()
+    .executeTakeFirst();
+};
+
 const create = async (p: Insert) => {
   return db.insertInto(table).values(p).returningAll().executeTakeFirst();
 };
@@ -367,4 +375,5 @@ export const permitRepo = {
   getAllPermits,
   getAllRejectedPermits,
   getPermit,
+  getOne
 };

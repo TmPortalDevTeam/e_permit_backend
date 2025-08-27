@@ -126,10 +126,21 @@ export const permitRouter = s.router(permitContract, {
       return { status: 201, body: r };
     },
   },
-  // AddQuota
-  // addpermitactivity 
-
-  addEmail: {
+  quotas: {
+    hooks: { preHandler: [auth, checkRole(['superadmin'])] },
+    handler: async ({ params, body }) => {
+      const r = await service.addQuota(params.code, body);
+      return { status: 201, body: r };
+    },
+  },
+  addPermitActivity: {
+    hooks: { preHandler: [auth, checkRole(['superadmin'])] },
+    handler: async ({ params, body }) => {
+      const r = await service.AddPermitActivities(params.permitID, body);
+      return { status: 201, body: r };
+    },
+  },
+  addEmail: { // Do not finish R-A-D stop etdiler
     hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ params, request }) => {
       const data = await request.file();
@@ -139,20 +150,10 @@ export const permitRouter = s.router(permitContract, {
       return { status: 201, body: r };
     },
   },
-
-
-
-
-  getAllQuotas: {
-    hooks: {
-      preHandler: [auth, checkRole(['superadmin'])]
-    },
-    handler: async () => {
-      const r = await service.getAllAuthority();
-      return {
-        status: 201,
-        body: { data: r }
-      };
+  permitStatus: {
+    handler: async ({ params }) => {
+      const r = await service.getPermitStatus(params.permitUUID);
+      return { status: 201, body: r };
     },
   },
 });

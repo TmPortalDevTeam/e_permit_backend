@@ -1,7 +1,8 @@
 import z from 'zod';
 import { initContract } from '@ts-rest/core';
 import { permitSchema as schema } from '../schema/permit';
-import { addFile, commonQuery, paramsId, paramsPermitId, resp } from '../schema/common';
+import { addFile, commonQuery, paramsCode, paramsId, paramsPermitID, paramsPermitId, resp, respBody } from '../schema/common';
+import { authoritiesSchema } from '../schema/authorities';
 
 const c = initContract();
 
@@ -69,25 +70,25 @@ export const permitContract = c.router(
     adminPermitsID: {
       method: 'GET',
       path: '/permits/:permitID',
-      pathParams: z.object({ permitID: z.string().uuid() }),
+      pathParams: paramsPermitID,
       responses: { 201: resp }
     },
     adminPermitsIdRevoke: {
       method: 'DELETE',
       path: '/permits/:permitID',
-      pathParams: z.object({ permitID: z.string().uuid() }),
+      pathParams: paramsPermitID,
       responses: { 201: resp }
     },
     getPermitPDFID: {
       method: 'GET',
       path: '/permits/:permitID/pdf',
-      pathParams: z.object({ permitID: z.string().uuid() }),
+      pathParams: paramsPermitID,
       responses: { 201: resp }
     },
     findPermitID: {
       method: 'GET',
       path: '/permits/find/:permitID',
-      pathParams: z.object({ permitID: z.string().uuid() }),
+      pathParams: paramsPermitID,
       responses: { 201: resp }
     },
     getAutorities: {
@@ -98,23 +99,29 @@ export const permitContract = c.router(
     postAutorities: {
       method: 'POST',
       path: '/authorities',
-      body: schema.createAuthoritiesExternalApi,
+      body: authoritiesSchema.authoritiesCreate,
       responses: { 201: resp }
     },
     getQuotas: {
       method: 'GET',
       path: '/quotas/:code',
-      pathParams: z.object({ code: z.string().trim() }),
+      pathParams: paramsCode,
       responses: { 201: resp }
     },
-    // quotas: { AddQuota
-    //   method: 'POST',
-    //   path: '/authorities/:code/quotas',
-    //   pathParams: z.object({ code: z.string().trim() }),
-    //   responses: { 201: resp }
-    // },
-
-    // addpermitactivity 
+    quotas: {
+      method: 'POST',
+      path: '/authorities/:code/quotas',
+      pathParams: paramsCode,
+      body: authoritiesSchema.authoritiesQuotaCreate,
+      responses: { 201: resp }
+    },
+    addPermitActivity: {
+      method: 'POST',
+      path: '/permit-activity/:permitID/activities',
+      pathParams: paramsPermitID,
+      body: schema.permitActivityCreate,
+      responses: { 201: resp }
+    },
     addEmail: {
       method: 'POST',
       path: '/send-email/:ledgerID',
@@ -123,21 +130,11 @@ export const permitContract = c.router(
       body: addFile,
       responses: { 201: resp }
     },
-
-
-
-
-
-
-
-    getAllQuotas: {
+    permitStatus: {
       method: 'GET',
-      path: '/quotas',
-      responses: {
-        201: z.object({
-          data: z.any(),
-        }),
-      },
+      path: '/permit/:permitUUID/status',
+      pathParams: z.object({ permitUUID: z.string().uuid() }),
+      responses: { 201: respBody }
     },
   },
   { pathPrefix: '/api/admin' },
