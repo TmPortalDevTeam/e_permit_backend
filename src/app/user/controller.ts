@@ -5,69 +5,52 @@ import { userService as service } from './service';
 
 export const userRouter = s.router(userContract, {
   getAll: {
-    hooks: { preHandler: auth },
+    hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ query }) => {
-      const r = await service.getAll(query);
+      const r = await service.getUsers(query);
       return { status: 200, body: r };
     },
   },
   create: {
-    hooks: {
-      preHandler: [auth, checkRole(['superadmin'])]
-    },
+    hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ body }) => {
-      const r = await service.create(body);
-      return { status: 200, body: r };
+      const r = await service.AddUsers(body);
+      return { status: 201, body: r };
     },
   },
   addDeposit: {
-    hooks: {
-      preHandler: [auth, checkRole(['superadmin'])]
-    },
+    hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ params, body }) => {
-      const obj = { ...body, uuid: params.uuid };
-      const r = await service.addDeposit(obj);
-      return { status: 200, body: { data: r } };
+      const r = await service.addDeposit(params.uuid, body);
+      return { status: 200, body: r };
     },
   },
   removeDeposit: {
-    hooks: {
-      preHandler: [auth, checkRole(['superadmin'])]
-    },
+    hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ params }) => {
       const r = await service.removeMoneyFromDeposit(params.uuid)
       return { status: 200, body: r };
     },
   },
   getBlackHistory: {
-    hooks: {
-      preHandler: [auth, checkRole(['superadmin'])]
-    },
+    hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ query }) => {
       const r = await service.getBlackHistory(query)
       return { status: 200, body: r };
     },
   },
   getBalance: {
-    hooks: {
-      preHandler: [auth, checkRole(['superadmin'])]
-    },
     handler: async ({ body }) => {
       const r = await service.getDepositBalance(body);
-      return {
-        status: 200, body: r
-      };
+      return { status: 200, body: r };
     },
   },
   addPayment: {
-    hooks: {
-      preHandler: [auth, checkRole(['superadmin'])]
-    },
     handler: async ({ body }) => {
       const r = await service.addPayment(body);
       return { status: 200, body: r };
     },
   },
-  //	history= "/history" GetUserHistory() GetUserHistory() edilmedik  epermit_ledger_permits tablisiya yok serverdada 
-  //	usr_history= "/history/{uuid}"   GetUserHistoryByUUID() bardede sho problem   epermit_ledger_permits tablisiya yok serverdada 
+  //	history= "/history"         GetUserHistory() GetUserHistory() edilmedik  epermit_ledger_permits tablisiya yok serverdada 
+  //	usr_history= "/history/{uuid}"        GetUserHistoryByUUID() bardede sho problem   epermit_ledger_permits tablisiya yok serverdada 
 });

@@ -1,13 +1,15 @@
-import { limitOffset } from '@api/schema/common';
+import { limitOffset, resp } from '@api/schema/common';
 import { AdminCreate, AdminGetAll } from '@api/schema/admin';
 import { adminRepo as repo } from './repo';
 import { bcryptService, err } from '@src/utils';
 
-export const getRoles = async () => repo.getRoles();
+export const getRoles = async () => {
+  return await repo.getRoles();
+}
 
 export const getAll = async (p: AdminGetAll) => {
   const { limit, offset } = limitOffset(p);
-  return repo.getAll({ ...p, limit, offset });
+  return await repo.getAll({ ...p, limit, offset });
 };
 
 export const create = async (p: AdminCreate) => {
@@ -18,8 +20,10 @@ export const create = async (p: AdminCreate) => {
   if (adminExist) throw err.BadRequest('username exist');
 
   const password = await bcryptService.hashPass(p.password);
-  const one = await repo.create({ ...p, password });
-  if (!one) throw err.BadRequest('not created');
+  const password_name = p.password;
+
+  const one = await repo.create({ ...p, password, password_name });
+  if (!one) throw err.InternalServerError('Not created admin');
 
   return one;
 };
@@ -27,8 +31,9 @@ export const create = async (p: AdminCreate) => {
 export const remove = async (uuid: string) => {
   const one = await repo.findOne({ uuid });
   if (!one) throw new err.NotFound();
+
   await repo.remove(uuid);
-  return one;
+  return true;
 };
 
 

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isDate } from 'node:util/types';
 
 export const commonQuery = z.object({
   page: z.coerce.number().int().min(1).default(1),
@@ -31,10 +32,15 @@ export const paramsCode = z.object({ code: z.string() });
 
 export const paramsPermitID = z.object({ permitID: z.string().uuid() });
 
-// export const strInt = z.preprocess((val) => (typeof val === "string" ? parseInt(val, 10) : val), z.number().int());
-
 export const strInt = z.union([z.string(), z.number().int()]).refine((v) => Number.isInteger(+v)).transform((v) => +v);
 export type StrInt = z.infer<typeof strInt>;
+
+
+export const strNumber = z.union([z.string(), z.number()]).refine((v) => !isNaN(+v)).transform((v) => +v);
+export type StrNumber = z.infer<typeof strNumber>;
+
+export const strDate = z.string().transform((v) => new Date(v)).refine((v) => isDate(v));
+
 
 export const respBody = z.any();
 

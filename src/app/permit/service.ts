@@ -14,7 +14,6 @@ import {
 import { fileManagerService } from '@src/infra/file-manager';
 import { sendEmailWithNodemailer } from '@src/utils/nodemailer';
 import { AuthoritiesCreate, AuthoritiesQuotaCreate } from '@src/api/schema/authorities';
-import { any, bigint, number } from 'zod';
 
 const createPermit = async (d: PemritCreate) => {
   const one = await repo.createPermit(d);
@@ -218,12 +217,9 @@ export const sendEmail = async (ledgerID: string, pdf: MultipartFile) => {
 
   const file = await fileManagerService.save({ meta: pdf, buffer, folder: 'public' });
 
-  const emailStatus: boolean = await sendEmailWithNodemailer('ismayylata@gmail.com', file);
+  const emailStatus: boolean = await sendEmailWithNodemailer('qwerty@gmail.com', file);
   if (!emailStatus) throw err.BadGateway('Email send pdf file error, please say admin')
 
-  console.log(ledgerID)
-  console.log(file)
-  console.log(emailStatus)
   // // await repo.edit(id, { avatar: file });
 
   // if (one.avatar) {

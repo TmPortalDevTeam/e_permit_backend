@@ -1,11 +1,11 @@
 import { z } from 'zod';
-import { commonQuery } from './common';
+import { commonQuery, strInt } from './common';
 
 export const payment = z.object({
   uuid: z.string().uuid(),
   order_id: z.string().uuid(),
   permit_id: z.string().uuid(),
-  amount: z.number().int(),
+  amount: strInt,
 });
 
 export const paymentGetOneRes = payment;

@@ -15,13 +15,13 @@ const getAll = async (p: Filter & LimitOffset) => {
   if (p.email) q = q.where('email', 'ilike', `%${p.email}%`);
 
   const c = await q.select(o => o.fn.countAll().as('c')).executeTakeFirst();
-  const data = await q
+  const users = await q
     .select([
       'uuid',
       'user_id',
+      'phone',
       'name',
       'email',
-      'phone',
       'deposit_legal',
       'deposit_individual',
     ])
@@ -29,7 +29,10 @@ const getAll = async (p: Filter & LimitOffset) => {
     .offset(p.offset)
     .orderBy('created_at', 'desc')
     .execute();
-  return { count: Number(c?.c), data };
+  return {
+    count: Number(c?.c),
+    users
+  };
 };
 
 const getOne = (uuid: string) => {

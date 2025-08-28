@@ -93,7 +93,7 @@ const getLastPermitUser = async (userUuid: string) => {
   return await db
     .selectFrom(table)
     .where('auth_id', '=', userUuid)
-    .select(['is_legal'])
+    .select(['uuid', 'auth_id', 'is_legal'])
     .orderBy('created_at', 'desc')
     .executeTakeFirst();
 };

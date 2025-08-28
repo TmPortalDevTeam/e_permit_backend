@@ -48,14 +48,13 @@ export const adminGetAllRes = z.object({
 
 export const adminGetOneRes = admin
   .extend({ role_id: z.string().uuid().nullable() })
-  .omit({ password: true, role: true });
+  .omit({ password: true, password_name: true, role: true });
 
 export const adminCreate = admin
   .pick({
     username: true,
-    password: true,
-    password_name: true,
     name: true,
+    password: true,
     role_id: true,
   });
 

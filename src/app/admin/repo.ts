@@ -10,18 +10,16 @@ const table = 'admin';
 type Filter = Partial<Selectable<Table> & AdminGetAll>;
 type Insert = Insertable<Table>;
 
-const create = (p: Insert) => {
+const create = async (p: Insert) => {
   return db.insertInto(table).values(p).returningAll().executeTakeFirst();
 };
 
-const remove = (uuid: string) => {
+const remove = async (uuid: string) => {
   return db.deleteFrom(table).where('uuid', '=', uuid).returningAll().executeTakeFirst();
 };
 
 const getAll = async (p: Filter & LimitOffset) => {
-  let q = db
-    .selectFrom(table)
-    .leftJoin('roles', 'admin.role_id', 'roles.uuid');
+  let q = db.selectFrom(table).leftJoin('roles', 'admin.role_id', 'roles.uuid');
 
   if (p.uuid) q = q.where('admin.uuid', '=', p.uuid);
   if (p.username) q = q.where('admin.username', '=', p.username);
@@ -39,19 +37,25 @@ const getAll = async (p: Filter & LimitOffset) => {
   }
 
   const c = await q.select(o => o.fn.countAll().as('c')).executeTakeFirst();
-  
+
   const data = await q
     .select([
       'admin.uuid',
       'admin.username',
+      'admin.password_name',
       'admin.name',
-      'roles.name as role',
+      'roles.name as role_name',
+      'roles.uuid as role_uuid',
     ])
     .limit(p.limit)
     .offset(p.offset)
     .orderBy('username', p.sortDirection)
     .execute();
-  return { count: Number(c?.c), data };
+
+  return {
+    count: Number(c?.c),
+    data
+  };
 };
 
 const findOne = async (p: Filter) => {
@@ -79,13 +83,11 @@ const findOne = async (p: Filter) => {
 };
 
 const getRoles = async () => {
-  let q = db.selectFrom(tableRole)
-  const c = await q.select(o => o.fn.countAll().as('c')).executeTakeFirst();
-  const data = await q
+  return await db
+    .selectFrom(tableRole)
     .select(['uuid', 'name'])
     .orderBy('name', 'asc')
     .execute();
-  return { count: Number(c?.c), data };
 };
 
 const findOneByIdRole = async (uuid: string) => {
@@ -95,7 +97,6 @@ const findOneByIdRole = async (uuid: string) => {
     .where('uuid', '=', uuid)
     .executeTakeFirst();
 };
-
 
 export const adminRepo = {
   getAll,

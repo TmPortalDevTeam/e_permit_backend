@@ -27,9 +27,13 @@ const edit = async (uuid: string, p: Edit) => {
 
 const addPayment = async (p: PaymentCreate) => {
   return await db.transaction().execute(async (trx) => {
-    const payment = await trx.insertInto(table).values(p).returningAll().executeTakeFirst();
+    const payment = await trx
+      .insertInto(table)
+      .values(p)
+      .returningAll()
+      .executeTakeFirst();
 
-    if (!payment) throw err.Conflict('Payment not created');
+    if (!payment) throw err.InternalServerError('Payment not created');
 
     const updatedPermit = await trx
       .updateTable('permit')
@@ -37,7 +41,7 @@ const addPayment = async (p: PaymentCreate) => {
       .where('uuid', '=', p.permit_id)
       .executeTakeFirst();
 
-    if (!updatedPermit) throw err.Conflict('Permit not updated');
+    if (!updatedPermit) throw err.InternalServerError('Permit not updated');
 
     return true;
   });

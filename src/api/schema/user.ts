@@ -1,43 +1,42 @@
 import { z } from 'zod';
-import { commonQuery, strBool } from './common';
+import { commonQuery, strBool, strDate, strInt, strNumber } from './common';
 
 export const user = z.object({
   uuid: z.string().uuid(),
-  user_id: z.number()
-    .refine((val) => Number.isInteger(val), { message: 'Must be an integer' })
-    .nullable(),
+  user_id: strInt.nullable(),
   name: z.string().nullable(),
   email: z.string().email().nullable(),
   phone: z.string().nullable(),
-  deposit_legal: z.number().nullable(),
-  deposit_individual: z.number().nullable(),
-  created_at: z.date(),
-  updated_at: z.date(),
-  deposit: z.number()
-    .refine((val) => Number.isInteger(val), { message: 'Must be an integer' })
-    .nullable()
+  deposit_legal: strNumber.nullable(),
+  deposit_individual: strNumber.nullable(),
+  deposit: strInt.nullable(),
+  created_at: strDate,
+  updated_at: strDate,
 });
 
 export const userDeposit = z.object({
-  deposit_legal: z.number(),
-  deposit_individual: z.number(),
+  deposit_legal: strNumber,
+  deposit_individual: strNumber,
 });
 
-export const depositBalance = user.pick({ uuid: true }).extend({ is_legal: strBool.default(true) });
+export const depositBalance = z.object({
+  user_id: z.string().uuid(),
+  is_legal: strBool
+});
 
-export const removeDeposit = user.pick({ uuid: true }).extend({ deposit: z.number().nullable().optional() });
+export const removeDeposit = user.pick({ uuid: true }).extend({ deposit: strInt.nullable().optional() });
 
 export const userDepositGetOneRes = z.object({ data: z.string() });
 
 export const userRemoveDepositGetOneRes = z.object({
   uuid: z.string().uuid(),
-  deposit_balance: z.number().nullable(),
+  deposit_balance: strInt.nullable(),
 });
 
 export const userGetOneRes = user;
 export const userGetAll = user.extend({ text: z.string() }).partial().merge(commonQuery);
 export const userGetAllRes = z.object({
-  count: z.number(),
+  count: strInt,
   data: user.pick({
     uuid: true,
     user_id: true,
@@ -55,11 +54,8 @@ export const userCreate = user
     name: true,
     email: true,
     phone: true,
-    deposit_legal: true,
-    deposit_individual: true,
-    deposit: true,
   })
-  .extend({ uuid: z.string().uuid().nullable() });
+  .extend({ uuid: z.string().uuid().optional() });
 
 export const userDepositAdd = userDeposit.pick({
   deposit_legal: true,

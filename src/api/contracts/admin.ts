@@ -1,6 +1,6 @@
 import { initContract } from '@ts-rest/core';
 import { adminSchema as schema } from '../schema/admin';
-import { paramsUuid } from '../schema/common';
+import { paramsUuid, respBody } from '../schema/common';
 
 const c = initContract();
 
@@ -9,17 +9,7 @@ export const adminContract = c.router(
     getRoles: {
       method: 'GET',
       path: '/roles',
-      responses: {
-        200: schema.getRoles,
-      },
-    },
-    getAll: {
-      method: 'GET',
-      path: '',
-      query: schema.getAll,
-      responses: {
-        200: schema.getAllRes,
-      },
+      responses: { 200: respBody },
     },
     create: {
       method: 'POST',
@@ -29,14 +19,18 @@ export const adminContract = c.router(
         201: schema.getOneRes,
       },
     },
+    getAll: {
+      method: 'GET',
+      path: '',
+      query: schema.getAll,
+      responses: { 200: respBody },
+    },
     remove: {
       method: 'DELETE',
       path: '/:uuid',
       pathParams: paramsUuid,
-      responses: {
-        201: schema.getOneRes,
-      },
+      responses: { 204: respBody },
     },
   },
-  { pathPrefix: '/api/admins' },
+  { pathPrefix: '/api/admin' },
 );

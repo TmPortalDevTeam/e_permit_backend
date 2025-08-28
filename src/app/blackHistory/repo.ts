@@ -15,13 +15,17 @@ const getAll = async (p: Filter & LimitOffset) => {
     if (p.text) q = q.where('company_name', 'ilike', `%${p.text}%`);
 
     const c = await q.select(o => o.fn.countAll().as('c')).executeTakeFirst();
+
     const data = await q
         .select(['uuid', 'permit_id', 'company_name', 'moved_at'])
         .limit(p.limit)
         .offset(p.offset)
         .orderBy('moved_at', 'desc')
         .execute();
-    return { count: Number(c?.c), data };
+    return {
+        count: Number(c?.c),
+        data
+    };
 };
 
 const getOne = (id: string) => {
