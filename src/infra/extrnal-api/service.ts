@@ -16,7 +16,7 @@ const basicAuth = {
   }
 };
 
-const updatePermitStatus = async (permitId: string, status: StrInt) => { // getPermitByID()
+const updatePermitStatus = async (permitId: string, status: StrInt) => {
   try {
     const response = await apiTUGDK.post(API_PERMIT_SET_STATUS, { permitId, status });
     return response.data;
@@ -58,7 +58,7 @@ const getPermits = async () => {
 };
 
 const addPermits = async (data: PermitCreateExternalApi) => {
-  const url: string = '/test/permits'; // TEST request /test/ need remove in url
+  const url: string = '/permits';
   try {
     const response = await apiEpermit.post(url, data, basicAuth);
     return response.data;
@@ -168,8 +168,6 @@ const addPermitActivities = async (permitID: string, data: PermitActivityCreate)
     return null;
   }
 }
-
-
 
 
 export const permitServiceAPI = {

@@ -54,6 +54,7 @@ const getPermitByID = async (id: string) => {
     'views_count': newViewsCount,
     'status': newStatus,
   });
+
   if (!updated) throw err.InternalServerError('Update error');
 
   const result = repo.getPermit(id);
@@ -130,7 +131,7 @@ const getPermits = async () => {
   const content = response.content;
 
   if (content === undefined || content === null) {
-    throw err.InternalServerError('Content field is null or undefined');
+    throw err.BadGateway('External API Content field is null or undefined');
   }
 
   return resp.parse({ data: content })
@@ -138,9 +139,8 @@ const getPermits = async () => {
 
 const addPermitsExternalApi = async (d: PermitCreateExternalApi) => {
   const response = await permitServiceAPI.addPermits(d);
-  if (!response) {
-    throw err.InternalServerError('Failed to add permit to external API');
-  }
+  if (!response) throw err.BadGateway('Failed to add permit to external API');
+
   return resp.parse({ data: response });
 }
 
@@ -167,35 +167,35 @@ const getPermitPDF = async (permitID: string) => {
 
 const findPermit = async (permitID: string) => {
   const response = await permitServiceAPI.findPermit(permitID);
-  if (!response) throw err.InternalServerError('Failed to send request to external API find permit');
+  if (!response) throw err.BadGateway('Failed to send request to external API find permit');
 
   return resp.parse({ data: response });
 }
 
 const getAuthorities = async () => {
   const response = await permitServiceAPI.getAuthorities();
-  if (!response) throw err.InternalServerError('Failed to send request to external API getAuthorities');
+  if (!response) throw err.BadGateway('Failed to send request to external API getAuthorities');
 
   return resp.parse({ data: response });
 }
 
 const postAuthorities = async (d: AuthoritiesCreate) => {
   const response = await permitServiceAPI.postAuthorities(d);
-  if (!response) throw err.InternalServerError('Failed to send request to external API getAuthorities');
+  if (!response) throw err.BadGateway('Failed to send request to external API getAuthorities');
 
   return resp.parse({ data: response });
 }
 
 const getAuthorityByCode = async (authorityCode: string) => {
   const response = await permitServiceAPI.getAuthorityByCode(authorityCode);
-  if (!response) throw err.InternalServerError('Failed to send request to external API get Authority By Code');
+  if (!response) throw err.BadGateway('Failed to send request to external API get Authority By Code');
 
   return resp.parse({ data: response });
 }
 
 const addQuota = async (code: string, d: AuthoritiesQuotaCreate) => {
   const response = await permitServiceAPI.addAuthoritiesQuota(code, d);
-  if (!response) throw err.InternalServerError('Failed to send request to external API add Authority Quota');
+  if (!response) throw err.BadGateway('Failed to send request to external API add Authority Quota');
 
   return resp.parse({ data: response });
 }

@@ -54,5 +54,7 @@ export const userContract = c.router(
       responses: { 200: respBody, }
     },
   },
+  // 	history         = "/history"
+  // // usr_history     = "/history/{uuid}"
   { pathPrefix: '/api/admin' },
 );

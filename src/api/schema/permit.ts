@@ -64,6 +64,7 @@ export const permitExternalApi = z.object({
   permit_type: strInt,
   permit_year: strInt,
   plate_number: z.string(),
+  // plate_number2: z.string(), External API deleted
   company_name: z.string(),
   company_id: z.string(),
   departure_country: z.string(),
@@ -73,7 +74,7 @@ export const permitCreateExternalApi = permitExternalApi.omit({ uuid: true });
 
 export const permitActivity = z.object({
   activity_type: z.enum(['ENTRANCE', 'EXIT ']),
-  activity_timestamp: z.string(),
+  activity_timestamp: strInt,
   activity_details: z.string(),
 });
 export const permitActivityCreate = permitActivity;

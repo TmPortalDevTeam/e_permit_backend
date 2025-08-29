@@ -5,6 +5,7 @@ import { db, DB } from '@infra/db/db';
 import { PemritCreate, PermitGetAll } from '@src/api/schema/permit';
 import { LimitOffset } from '@api/schema/common';
 
+
 const table = 'permit';
 type Table = DB['permit'];
 type Filter = Partial<Selectable<Table> & PermitGetAll>;
@@ -18,14 +19,14 @@ const driver = (p: ExpressionBuilder<DB, 'permit'>) => {
     p.selectFrom('driver')
       .whereRef('driver.permit_id', '=', 'permit.uuid')
       .select([
-        'uuid',
+        // 'uuid',
         'name',
         'surname',
         'patronymic',
         'driving_license_number',
         'driving_license_expired_date',
       ]))
-    .as('drivers');
+    .as('driver');
 };
 
 const clientIndividual = (p: ExpressionBuilder<DB, 'permit'>) => {
@@ -33,7 +34,7 @@ const clientIndividual = (p: ExpressionBuilder<DB, 'permit'>) => {
     p.selectFrom('client_individual')
       .whereRef('client_individual.permit_id', '=', 'permit.uuid')
       .select([
-        'uuid',
+        // 'uuid',
         'name',
         'surname',
         'patronymic',
@@ -48,7 +49,7 @@ const clientLegal = (p: ExpressionBuilder<DB, 'permit'>) => {
     p.selectFrom('client_legal')
       .whereRef('client_legal.permit_id', '=', 'permit.uuid')
       .select([
-        'uuid',
+        // 'uuid',
         'company_name',
         'address',
         'yegrpo_number',
@@ -58,7 +59,7 @@ const clientLegal = (p: ExpressionBuilder<DB, 'permit'>) => {
         'account_number',
         'number_of_cars',
       ]))
-    .as('clientLegal');
+    .as('client_legal');
 };
 
 const transport = (p: ExpressionBuilder<DB, 'permit'>) => {
@@ -66,7 +67,7 @@ const transport = (p: ExpressionBuilder<DB, 'permit'>) => {
     p.selectFrom('transport')
       .whereRef('transport.permit_id', '=', 'permit.uuid')
       .select([
-        'uuid',
+        // 'uuid',
         'brand',
         'type',
         'card_number',
@@ -83,9 +84,20 @@ const users = (p: ExpressionBuilder<DB, 'permit'>) => {
     .selectFrom('users')
     .whereRef('users.uuid', '=', 'permit.auth_id')
     .select(['name'])
-    .as('auth');
+    .as('user');
 };
 
+const selectUsers = (eb: ExpressionBuilder<DB, 'permit'>) => {
+  return jsonObjectFrom(eb
+    .selectFrom('users')
+    .whereRef('users.uuid', '=', 'permit.auth_id')
+    .select([
+      'name',
+      'deposit_legal',
+      'deposit_individual',
+      'is_paid',
+    ])).as('user');
+};
 
 
 /** Start request database */
@@ -223,12 +235,18 @@ const createPermit = async (d: PemritCreate) => {
 const getAllPermits = async (p: LimitOffset) => {
   return await db
     .selectFrom(table)
+    .leftJoin('users', 'users.uuid', 'permit.auth_id')
     .selectAll(table)
     .select((eb) => [
       driver(eb),
       clientIndividual(eb),
       clientLegal(eb),
       transport(eb),
+
+      'users.name as auth_name',
+      'deposit_legal',
+      'deposit_individual',
+      'is_paid',
     ])
     .limit(p.limit)
     .offset(p.offset)
@@ -236,9 +254,11 @@ const getAllPermits = async (p: LimitOffset) => {
     .execute();
 };
 
-
 const getAllRejectedPermits = async (p: Filter & LimitOffset) => {
-  let q = db.selectFrom(table).where('status', '=', 7);
+  let q = db
+    .selectFrom(table)
+    .where('status', '=', 7)
+    .leftJoin('users', 'users.uuid', 'permit.auth_id');
 
   if (p.text) {
     q = q.where((eb) =>
@@ -252,24 +272,30 @@ const getAllRejectedPermits = async (p: Filter & LimitOffset) => {
   const c = await q.select(o => o.fn.countAll().as('c')).executeTakeFirst();
 
   const data = await q
-    .selectAll()
+
+    .selectAll(table)
     .select((eb) => [
       clientIndividual(eb),
       clientLegal(eb),
       driver(eb),
       transport(eb),
-      users(eb),
+      'users.name as auth_name',
     ])
     .limit(p.limit)
     .offset(p.offset)
     .orderBy('created_at', 'desc')
     .execute();
 
-  return { count: Number(c?.c), data };
+  return {
+    count: Number(c?.c),
+    data
+  };
 };
 
 const getPermit = async (id: string) => {
-  let q = db.selectFrom(table);
+  let q = db
+    .selectFrom(table)
+    .leftJoin('users', 'users.uuid', 'permit.auth_id');
 
   if (id) q = q.where('uuid', '=', id);
 
@@ -280,9 +306,13 @@ const getPermit = async (id: string) => {
       clientLegal(eb),
       driver(eb),
       transport(eb),
-      users(eb),
+
+      'users.name as auth_name',
+      'is_paid',
+      'deposit_legal',
     ])
-    .execute();
+    .executeTakeFirst();
+  // .execute()
 
   return data;
 };

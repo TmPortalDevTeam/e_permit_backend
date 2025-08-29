@@ -5,7 +5,6 @@ import { permitContract } from '@src/api/contracts/permit';
 import { err } from '@src/utils';
 
 
-
 export const permitRouter = s.router(permitContract, {
   adminAddPermit: {
     hooks: { preHandler: [auth, checkRole(['superadmin'])] },
@@ -15,14 +14,12 @@ export const permitRouter = s.router(permitContract, {
     },
   },
   adminGetPermit: {
-    hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ query }) => {
       const r = await service.getAllPermits(query);
-      return { status: 201, body: r };
+      return { status: 200, body: r };
     },
   },
   rejectedPermit: {
-    hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ query }) => {
       const r = await service.rejectedPermits(query);
       return { status: 201, body: r };
@@ -32,42 +29,42 @@ export const permitRouter = s.router(permitContract, {
     hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ params }) => {
       const r = await service.getPermitByID(params.id);
-      return { status: 201, body: r };
+      return { status: 200, body: r };
     },
   },
   adminChangestatusto3: {
     hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ body }) => {
       const r = await service.updatePermitStatusTo3(body.permitId);
-      return { status: 201, body: r };
+      return { status: 200, body: r };
     },
   },
   adminChangestatusto4: {
     hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ body }) => {
       const r = await service.updatePermitStatusTo4(body.permitId);
-      return { status: 201, body: r };
+      return { status: 200, body: r };
     },
   },
   adminSetstatus7: {
     hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ body }) => {
       const r = await service.setPermitStatus(body);
-      return { status: 201, body: r };
+      return { status: 200, body: r };
     },
   },
   adminChangePermitStatus: {
     hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ body }) => {
       const r = await service.changePermitStatus(body);
-      return { status: 201, body: r };
+      return { status: 200, body: r };
     },
   },
   adminGetPermits: {
     hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async () => {
       const r = await service.getPermits();
-      return { status: 201, body: r };
+      return { status: 200, body: r };
     },
   },
   adminAddPermits: {
@@ -81,63 +78,63 @@ export const permitRouter = s.router(permitContract, {
     hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ params }) => {
       const r = await service.getPermitsByID(params.permitID);
-      return { status: 201, body: r };
+      return { status: 200, body: r };
     },
   },
   adminPermitsIdRevoke: {
     hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ params }) => {
       const r = await service.revokePermit(params.permitID);
-      return { status: 201, body: r };
+      return { status: 200, body: r };
     },
   },
   getPermitPDFID: {
     hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ params }) => {
       const r = await service.getPermitPDF(params.permitID);
-      return { status: 201, body: r };
+      return { status: 200, body: r };
     },
   },
   findPermitID: {
     hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ params }) => {
       const r = await service.findPermit(params.permitID);
-      return { status: 201, body: r };
+      return { status: 200, body: r };
     },
   },
   getAutorities: {
     hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async () => {
       const r = await service.getAuthorities();
-      return { status: 201, body: r };
+      return { status: 200, body: r };
     },
   },
   postAutorities: {
     hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ body }) => {
       const r = await service.postAuthorities(body);
-      return { status: 201, body: r };
+      return { status: 200, body: r };
     },
   },
   getQuotas: {
     hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ params }) => {
       const r = await service.getAuthorityByCode(params.code);
-      return { status: 201, body: r };
+      return { status: 200, body: r };
     },
   },
   quotas: {
     hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ params, body }) => {
       const r = await service.addQuota(params.code, body);
-      return { status: 201, body: r };
+      return { status: 200, body: r };
     },
   },
   addPermitActivity: {
     hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ params, body }) => {
       const r = await service.AddPermitActivities(params.permitID, body);
-      return { status: 201, body: r };
+      return { status: 200, body: r };
     },
   },
   addEmail: { // Do not finish R-A-D stop etdiler
@@ -153,7 +150,7 @@ export const permitRouter = s.router(permitContract, {
   permitStatus: {
     handler: async ({ params }) => {
       const r = await service.getPermitStatus(params.permitUUID);
-      return { status: 201, body: r };
+      return { status: 200, body: r };
     },
   },
 });

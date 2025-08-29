@@ -18,48 +18,48 @@ export const permitContract = c.router(
       method: 'GET',
       path: '/e-permit',
       query: commonQuery,
-      responses: { 201: resp }
+      responses: { 200: resp }
     },
     rejectedPermit: {
       method: 'GET',
       path: '/rejected',
       query: schema.getAllRejectedPermit,
-      responses: { 201: resp }
+      responses: { 200: resp }
     },
     adminGetPermitID: {
       method: 'GET',
       path: '/e-permit/:id',
       pathParams: paramsId,
-      responses: { 201: resp }
+      responses: { 200: resp }
     },
     adminChangestatusto3: {
       method: 'POST',
       path: '/e-permit-change-statusto3',
       body: paramsPermitId,
-      responses: { 201: resp }
+      responses: { 200: resp }
     },
     adminChangestatusto4: {
       method: 'POST',
       path: '/e-permit-change-statusto4',
       body: schema.updatePermitStatus,
-      responses: { 201: resp }
+      responses: { 200: resp }
     },
     adminSetstatus7: {
       method: 'POST',
       path: '/e-permit-setstatus7',
       body: schema.updatePermitStatus7,
-      responses: { 201: resp }
+      responses: { 200: resp }
     },
     adminChangePermitStatus: {
       method: 'POST',
       path: '/e-permit-change-status',
       body: schema.permitStatusUpdateRequest,
-      responses: { 201: resp }
+      responses: { 200: resp }
     },
     adminGetPermits: {
       method: 'GET',
       path: '/permits',
-      responses: { 201: resp }
+      responses: { 200: resp }
     },
     adminAddPermits: {
       method: 'POST',
@@ -71,56 +71,56 @@ export const permitContract = c.router(
       method: 'GET',
       path: '/permits/:permitID',
       pathParams: paramsPermitID,
-      responses: { 201: resp }
+      responses: { 200: resp }
     },
     adminPermitsIdRevoke: {
       method: 'DELETE',
       path: '/permits/:permitID',
       pathParams: paramsPermitID,
-      responses: { 201: resp }
+      responses: { 200: resp }
     },
     getPermitPDFID: {
       method: 'GET',
       path: '/permits/:permitID/pdf',
       pathParams: paramsPermitID,
-      responses: { 201: resp }
+      responses: { 200: resp }
     },
     findPermitID: {
       method: 'GET',
       path: '/permits/find/:permitID',
       pathParams: paramsPermitID,
-      responses: { 201: resp }
+      responses: { 200: resp }
     },
     getAutorities: {
       method: 'GET',
       path: '/authorities',
-      responses: { 201: resp }
+      responses: { 200: resp }
     },
     postAutorities: {
       method: 'POST',
       path: '/authorities',
       body: authoritiesSchema.authoritiesCreate,
-      responses: { 201: resp }
+      responses: { 200: resp }
     },
     getQuotas: {
       method: 'GET',
       path: '/quotas/:code',
       pathParams: paramsCode,
-      responses: { 201: resp }
+      responses: { 200: resp }
     },
     quotas: {
       method: 'POST',
       path: '/authorities/:code/quotas',
       pathParams: paramsCode,
       body: authoritiesSchema.authoritiesQuotaCreate,
-      responses: { 201: resp }
+      responses: { 200: resp }
     },
     addPermitActivity: {
       method: 'POST',
       path: '/permit-activity/:permitID/activities',
       pathParams: paramsPermitID,
       body: schema.permitActivityCreate,
-      responses: { 201: resp }
+      responses: { 200: resp }
     },
     addEmail: {
       method: 'POST',
@@ -134,7 +134,7 @@ export const permitContract = c.router(
       method: 'GET',
       path: '/permit/:permitUUID/status',
       pathParams: z.object({ permitUUID: z.string().uuid() }),
-      responses: { 201: respBody }
+      responses: { 200: respBody }
     },
   },
   { pathPrefix: '/api/admin' },
