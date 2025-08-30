@@ -128,7 +128,7 @@ export const permitContract = c.router(
       contentType: 'multipart/form-data',
       pathParams: z.object({ ledgerID: z.string().uuid() }),
       body: addFile,
-      responses: { 201: resp }
+      responses: { 200: respBody }
     },
     permitStatus: {
       method: 'GET',

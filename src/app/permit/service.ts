@@ -90,7 +90,7 @@ const updatePermitStatusTo4 = async (permitId: string) => {
   if (!updated) throw err.InternalServerError(`Failed to update permit status ${status}`);
 
   const response = await tugdkServiceAPI.permitSetStatus(permitId, status);
-  if (!response) throw err.InternalServerError('External API request failed');
+  if (!response) throw err.BadGateway('External API request failed');
 
   return resp.parse({ data: null });
 }
@@ -207,30 +207,42 @@ const AddPermitActivities = async (permitID: string, d: PermitActivityCreate) =>
   return resp.parse({ data: response });
 }
 
-// do not finish fiend email need for send this email
 export const sendEmail = async (ledgerID: string, pdf: MultipartFile) => {
-  // const one = await repo.getOne(ledgerID);
-  // if (!one) throw err.NotFound();
+  const epermit_ledger_permits = await permitServiceAPI.getPermitsByID(ledgerID);
+  if (!epermit_ledger_permits) throw err.BadGateway('External API responded with non-OK getPermitByID');
+
+  const company_id = epermit_ledger_permits.company_id;
+  if (!company_id) throw err.BadGateway('External API responded getPermitByID with company_id error');
+
+  const permit = await repo.getOneForEmail(company_id);
+  if (!permit) throw err.InternalServerError('Do not find permit_uuid != company_id for email');
+
+  const email = permit.email;
+  if (!email) throw err.InternalServerError('Email empty or undefined');
 
   const buffer = await pdf.toBuffer();
   if (!buffer) throw err.BadRequest();
 
   const file = await fileManagerService.save({ meta: pdf, buffer, folder: 'public' });
 
-  const emailStatus: boolean = await sendEmailWithNodemailer('qwerty@gmail.com', file);
+  const emailStatus: boolean = await sendEmailWithNodemailer(email, file);
   if (!emailStatus) throw err.BadGateway('Email send pdf file error, please say admin')
 
-  // // await repo.edit(id, { avatar: file });
+  const fileRemove = await fileManagerService.remove({ fileName: file, folder: 'public' });
+  if (!fileRemove) throw err.InternalServerError('Remove file error')
 
-  // if (one.avatar) {
-  //   await fileManagerService.remove({ fileName: one.avatar, folder: 'public' });
-  // }
+  const status: number = 5;
+  const response = await tugdkServiceAPI.permitSetStatus(company_id, status);
+  if (!response) throw err.BadGateway('External API request failed update permitSetStatus');
 
-  // const resData = await repo.getOne(ledgerID);
-  // if (!resData) throw err.NotFound();
-  // return resData;
-  return resp.parse({ data: null });
+  return {
+    email,
+    status: "Email sent and status updated successfully",
+  }
 };
+
+
+
 
 const getPermitStatus = async (permitUUID: string) => {
   const one = await repo.getOne(permitUUID);

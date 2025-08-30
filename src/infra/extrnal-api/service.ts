@@ -69,7 +69,7 @@ const addPermits = async (data: PermitCreateExternalApi) => {
 };
 
 const getPermitsByID = async (permitID: string) => {
-  const url: string = `/permits/${permitID}`;
+  const url: string = `/permits/${permitID}`; // E_PERMIT_API=http://216.250.14.184:8081
   try {
     const response = await apiEpermit.get(url, basicAuth);
     return response.data;

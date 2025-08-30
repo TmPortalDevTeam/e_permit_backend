@@ -9,12 +9,13 @@ const dialect = new PostgresDialect({
     pool: new Pool({ connectionString, max: 10 }),
 });
 
-export type DB = Database & {
-    roles: Database['roles']
-    users: Database['users']
-    permits: Database['permit']
-    client_legals: Database['client_legal']
-    epermit_ledger_permits: Database['epermit_ledger_permits']
-};
+export type DB = Database;
+// & {
+//     roles: Database['roles']
+//     users: Database['users']
+//     permits: Database['permit']
+//     client_legals: Database['client_legal']
+//     epermit_ledger_permits: Database['epermit_ledger_permits']
+// };
 
 export const db = new Kysely<DB>({ dialect, log: ['query'] });

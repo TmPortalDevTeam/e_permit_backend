@@ -1,5 +1,5 @@
 import { err } from '@src/utils';
-import { ExpressionBuilder, Insertable, Selectable, Updateable } from 'kysely';
+import { ExpressionBuilder, Insertable, Selectable, sql, Updateable } from 'kysely';
 import { jsonArrayFrom, jsonObjectFrom } from 'kysely/helpers/postgres';
 import { db, DB } from '@infra/db/db';
 import { PemritCreate, PermitGetAll } from '@src/api/schema/permit';
@@ -121,7 +121,16 @@ const getOne = async (id: string) => {
   return db
     .selectFrom(table)
     .where('uuid', '=', id)
-    .selectAll()
+    .selectAll(table)
+    .executeTakeFirst();
+};
+
+
+const getOneForEmail = async (company_id: string) => {
+  return db
+    .selectFrom(table)
+    .where(sql`uuid::text`, '=', company_id)  
+    .selectAll(table)
     .executeTakeFirst();
 };
 
@@ -405,5 +414,6 @@ export const permitRepo = {
   getAllPermits,
   getAllRejectedPermits,
   getPermit,
-  getOne
+  getOne,
+  getOneForEmail
 };

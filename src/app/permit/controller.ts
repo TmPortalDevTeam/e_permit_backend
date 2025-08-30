@@ -137,14 +137,14 @@ export const permitRouter = s.router(permitContract, {
       return { status: 200, body: r };
     },
   },
-  addEmail: { // Do not finish R-A-D stop etdiler
+  addEmail: { 
     hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ params, request }) => {
       const data = await request.file();
       if (!data) throw err.BadRequest('File not found in request');
 
       const r = await service.sendEmail(params.ledgerID, data);
-      return { status: 201, body: r };
+      return { status: 200, body: r };
     },
   },
   permitStatus: {
