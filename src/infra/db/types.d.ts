@@ -36,6 +36,8 @@ export interface Admin {
 
 export interface BlackHistory {
   company_name: string | null;
+  moved_at: Generated<Timestamp>;
+  permit_id: string | null;
   uuid: Generated<string>;
 }
 
@@ -70,29 +72,6 @@ export interface Driver {
   permit_id: string | null;
   surname: string | null;
   uuid: Generated<string>;
-}
-
-export interface EpermitLedgerPermits {
-  arrival_country: string;
-  company_id: string;
-  company_name: string;
-  created_at: Timestamp;
-  departure_country: string;
-  expires_at: string;
-  id: string;
-  issued_at: string;
-  issued_for: string;
-  issuer: string;
-  other_claims: string | null;
-  permit_id: string;
-  permit_type: number;
-  permit_year: number;
-  plate_number: string | null;
-  plate_number2: string | null;
-  qr_code: string;
-  revoked: boolean;
-  revoked_at: Int8 | null;
-  used: boolean;
 }
 
 export interface Payment {
@@ -179,13 +158,35 @@ export interface Users {
   uuid: Generated<string>;
 }
 
+export interface EpermitLedgerPermits {
+  arrival_country: string;
+  company_id: string;
+  company_name: string;
+  created_at: Timestamp;
+  departure_country: string;
+  expires_at: string;
+  id: string;
+  issued_at: string;
+  issued_for: string;
+  issuer: string;
+  other_claims: string | null;
+  permit_id: string;
+  permit_type: number;
+  permit_year: number;
+  plate_number: string | null;
+  plate_number2: string | null;
+  qr_code: string;
+  revoked: boolean;
+  revoked_at: Int8 | null;
+  used: boolean;
+}
+
 export interface DB {
   admin: Admin;
   black_history: BlackHistory;
   client_individual: ClientIndividual;
   client_legal: ClientLegal;
   driver: Driver;
-  epermit_ledger_permits: EpermitLedgerPermits;
   payment: Payment;
   permit: Permit;
   permit_history: PermitHistory;
@@ -193,4 +194,5 @@ export interface DB {
   transport: Transport;
   user_history: UserHistory;
   users: Users;
+  epermit_ledger_permits: EpermitLedgerPermits;
 }
