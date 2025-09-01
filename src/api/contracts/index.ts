@@ -7,8 +7,8 @@ import { permitContract } from './permit';
 const c = initContract();
 
 export const contract = c.router({
-  auth: authContract,
   admin: adminContract,
+  auth: authContract,
+  permit: permitContract,
   user: userContract,
-  permit: permitContract
 });

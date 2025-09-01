@@ -1,6 +1,6 @@
 import { CommonQuery, limitOffset, resp } from '@api/schema/common';
 import { MultipartFile } from '@fastify/multipart';
-import { err } from '@src/utils';
+import { err, logger, sendEmailWithNodemailer } from '@src/utils';
 import { permitRepo as repo } from './repo';
 import { permitServiceAPI, tugdkServiceAPI } from '@src/infra/extrnal-api/service';
 import {
@@ -12,8 +12,8 @@ import {
   UpdatePermitStatus7
 } from '@src/api/schema/permit';
 import { fileManagerService } from '@src/infra/file-manager';
-import { sendEmailWithNodemailer } from '@src/utils/nodemailer';
 import { AuthoritiesCreate, AuthoritiesQuotaCreate } from '@src/api/schema/authorities';
+
 
 const createPermit = async (d: PemritCreate) => {
   const one = await repo.createPermit(d);
@@ -229,20 +229,17 @@ export const sendEmail = async (ledgerID: string, pdf: MultipartFile) => {
   if (!emailStatus) throw err.BadGateway('Email send pdf file error, please say admin')
 
   const fileRemove = await fileManagerService.remove({ fileName: file, folder: 'public' });
-  if (!fileRemove) throw err.InternalServerError('Remove file error')
+  if (!fileRemove) logger.error({ message: 'Remove file error', date: '/public/' + file })
 
   const status: number = 5;
   const response = await tugdkServiceAPI.permitSetStatus(company_id, status);
   if (!response) throw err.BadGateway('External API request failed update permitSetStatus');
 
   return {
-    email,
     status: "Email sent and status updated successfully",
+    email,
   }
 };
-
-
-
 
 const getPermitStatus = async (permitUUID: string) => {
   const one = await repo.getOne(permitUUID);
