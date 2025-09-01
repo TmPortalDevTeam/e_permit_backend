@@ -1,6 +1,6 @@
 import { LimitOffset } from '@api/schema/common';
 import { db, DB } from '@infra/db/db';
-import { Insertable, Selectable, Updateable } from 'kysely';
+import { Insertable, Selectable, sql, Updateable } from 'kysely';
 
 type Table = DB['users'];
 const table = 'users';
@@ -71,10 +71,60 @@ const edit = async (uuid: string, p: Edit) => {
   return db.updateTable(table).where('uuid', '=', uuid).set(p).returningAll().executeTakeFirst();
 };
 
+const getUserHistory = async () => {
+  return await db
+    .selectFrom('epermit_ledger_permits as elp')
+    .leftJoin('permit as p', (join) => join.on('elp.company_id', '=', sql`p.uuid::text`))
+    .leftJoin('users as u', 'p.auth_id', 'u.uuid')
+    .select([
+      'elp.permit_id',
+      sql<string>`COALESCE(u.name, '')`.as('name'),
+      sql<string>`COALESCE(elp.company_name, '')`.as('company_name'),
+      sql<number>`COALESCE(u.deposit_legal, 0) + COALESCE(u.deposit_individual, 0)`.as('left_deposit'),
+      sql<Date>`elp.created_at`.as('date'),
+    ])
+    .execute()
+}
+
+const getUserHistoryByUUID = async (userId: string) => {
+  return await db
+    .selectFrom('epermit_ledger_permits')
+    .leftJoin('permit', (join) => join.on('epermit_ledger_permits.company_id', '=', sql`permit.uuid::text`))
+    .leftJoin('users', 'permit.auth_id', 'users.uuid')
+    .select((eb) => [
+      'epermit_ledger_permits.permit_id',
+      sql<string>`COALESCE(users.name, '')`.as('name'),
+      sql<string>`COALESCE(epermit_ledger_permits.company_name, '')`.as('company_name'),
+      sql<number>`COALESCE(users.deposit_legal, 0) + COALESCE(users.deposit_individual, 0)`.as('left_deposit'),
+      sql<Date>`epermit_ledger_permits.created_at`.as('date'),
+    ])
+    .where('users.uuid', '=', userId)
+    .execute()
+}
+
+
+const getPermitsByUserId = async (userId: string) => {
+  return await db
+    .selectFrom('epermit_ledger_permits')
+    .leftJoin('permit', 'epermit_ledger_permits.company_id', 'permit.uuid')
+    .leftJoin('users', 'permit.auth_id', 'users.uuid')
+    .select((eb) => [
+      'epermit_ledger_permits.permit_id',
+      sql<string>`COALESCE(users.name, '')`.as('name'),
+      sql<string>`COALESCE(epermit_ledger_permits.company_name, '')`.as('company_name'),
+      sql<number>`COALESCE(users.deposit_legal, 0) + COALESCE(users.deposit_individual, 0)`.as('left_deposit'),
+      sql<Date>`epermit_ledger_permits.created_at`.as('date'),
+    ])
+    .where('users.uuid', '=', userId)
+    .execute()
+}
+
 export const userRepo = {
   create,
   edit,
   findOne,
   getAll,
   getOne,
+  getUserHistoryByUUID,
+  getUserHistory,
 };

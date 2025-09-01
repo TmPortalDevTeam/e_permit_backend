@@ -36,8 +36,6 @@ export interface Admin {
 
 export interface BlackHistory {
   company_name: string | null;
-  moved_at: Generated<Timestamp>;
-  permit_id: string;
   uuid: Generated<string>;
 }
 
@@ -75,8 +73,26 @@ export interface Driver {
 }
 
 export interface EpermitLedgerPermits {
-  "company_id ": string;
-  "id ": string;
+  arrival_country: string;
+  company_id: string;
+  company_name: string;
+  created_at: Timestamp;
+  departure_country: string;
+  expires_at: string;
+  id: string;
+  issued_at: string;
+  issued_for: string;
+  issuer: string;
+  other_claims: string | null;
+  permit_id: string;
+  permit_type: number;
+  permit_year: number;
+  plate_number: string | null;
+  plate_number2: string | null;
+  qr_code: string;
+  revoked: boolean;
+  revoked_at: Int8 | null;
+  used: boolean;
 }
 
 export interface Payment {

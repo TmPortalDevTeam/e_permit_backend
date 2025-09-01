@@ -39,12 +39,25 @@ export const permit = z.object({
   plate_number: z.string().array(),
   foreign_plate_number: z.string().array(),
 
-  individual_name: z.string(),
-  individual_surname: z.string(),
-  individual_patronymic: z.string(),
-  individual_patent_number: z.string(),
-  individual_patent_expire_date: z.string(),
+  // Individual users fields
+  individual_name: z.string().optional(),
+  individual_surname: z.string().optional(),
+  individual_patronymic: z.string().optional(),
+  individual_patent_number: z.string().optional(),
+  individual_patent_expire_date: z.string().optional(),
 
+  // Legal users fields
+  legal_company_name: z.string().optional(),
+  legal_address: z.string().optional(),
+  legal_yegrpo_number: z.string().optional(),
+  legal_yegrpo_expire_date: z.string().optional(),
+  legal_certificate_number: z.string().optional(),
+  legal_bank_details: z.string().optional(),
+  legal_account_number: z.string().optional(),
+  legal_number_of_cars: strInt.optional(),
+});
+
+export const legal = z.object({
   legal_company_name: z.string(),
   legal_address: z.string(),
   legal_yegrpo_number: z.string(),
@@ -52,7 +65,15 @@ export const permit = z.object({
   legal_certificate_number: z.string(),
   legal_bank_details: z.string(),
   legal_account_number: z.string(),
-  legal_number_of_cars: z.number().int(),
+  legal_number_of_cars: strInt,
+});
+
+export const individual = z.object({
+  individual_name: z.string(),
+  individual_surname: z.string(),
+  individual_patronymic: z.string(),
+  individual_patent_number: z.string(),
+  individual_patent_expire_date: z.string(),
 });
 
 export const permitCreate = permit.omit({ uuid: true });
@@ -122,7 +143,6 @@ export type UpdatePermitStatus7 = z.infer<typeof updatePermitStatus7Schema>;
 export type PermitStatusUpdate = z.infer<typeof permitStatusUpdateRequestSchema>;
 export type PermitCreateExternalApi = z.infer<typeof permitCreateExternalApi>;
 export type PermitActivityCreate = z.infer<typeof permitActivityCreate>;
-
 
 export const permitSchema = {
   schema: permit,

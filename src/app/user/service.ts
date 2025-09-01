@@ -140,6 +140,16 @@ export const addPayment = async (p: PaymentCreate) => {
   return { message: 'Payment added successfully' }
 };
 
+export const getPermitsByUserId = async () => {
+  const r = await repo.getUserHistory();
+  return resp.parse({ data: r });
+};
+
+export const getUserHistoryByUUID = async (userId: string) => {
+  const r = await repo.getUserHistoryByUUID(userId);
+  return resp.parse({ data: r });
+};
+
 
 export const userService = {
   AddUsers,
@@ -149,4 +159,6 @@ export const userService = {
   getBlackHistory,
   getDepositBalance,
   addPayment,
+  getPermitsByUserId,
+  getUserHistoryByUUID
 };

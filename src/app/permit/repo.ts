@@ -2,9 +2,14 @@ import { err } from '@src/utils';
 import { ExpressionBuilder, Insertable, Selectable, sql, Updateable } from 'kysely';
 import { jsonArrayFrom, jsonObjectFrom } from 'kysely/helpers/postgres';
 import { db, DB } from '@infra/db/db';
-import { PemritCreate, PermitGetAll } from '@src/api/schema/permit';
+import { individual, legal, PemritCreate, PermitGetAll } from '@src/api/schema/permit';
 import { LimitOffset } from '@api/schema/common';
 
+
+const tableDriver = 'driver';
+const tableClientIndividual = 'client_individual';
+const tableClientLegal = 'client_legal';
+const tableTransport = 'transport';
 
 const table = 'permit';
 type Table = DB['permit'];
@@ -16,7 +21,7 @@ type Edit = Updateable<Table>;
 /** Helpers function for repo */
 const driver = (p: ExpressionBuilder<DB, 'permit'>) => {
   return jsonArrayFrom(
-    p.selectFrom('driver')
+    p.selectFrom(tableDriver)
       .whereRef('driver.permit_id', '=', 'permit.uuid')
       .select([
         // 'uuid',
@@ -31,7 +36,7 @@ const driver = (p: ExpressionBuilder<DB, 'permit'>) => {
 
 const clientIndividual = (p: ExpressionBuilder<DB, 'permit'>) => {
   return jsonArrayFrom(
-    p.selectFrom('client_individual')
+    p.selectFrom(tableClientIndividual)
       .whereRef('client_individual.permit_id', '=', 'permit.uuid')
       .select([
         // 'uuid',
@@ -46,7 +51,7 @@ const clientIndividual = (p: ExpressionBuilder<DB, 'permit'>) => {
 
 const clientLegal = (p: ExpressionBuilder<DB, 'permit'>) => {
   return jsonArrayFrom(
-    p.selectFrom('client_legal')
+    p.selectFrom(tableClientLegal)
       .whereRef('client_legal.permit_id', '=', 'permit.uuid')
       .select([
         // 'uuid',
@@ -64,7 +69,7 @@ const clientLegal = (p: ExpressionBuilder<DB, 'permit'>) => {
 
 const transport = (p: ExpressionBuilder<DB, 'permit'>) => {
   return jsonArrayFrom(
-    p.selectFrom('transport')
+    p.selectFrom(tableTransport)
       .whereRef('transport.permit_id', '=', 'permit.uuid')
       .select([
         // 'uuid',
@@ -129,7 +134,7 @@ const getOne = async (id: string) => {
 const getOneForEmail = async (company_id: string) => {
   return db
     .selectFrom(table)
-    .where(sql`uuid::text`, '=', company_id)  
+    .where(sql`uuid::text`, '=', company_id)
     .selectAll(table)
     .executeTakeFirst();
 };
@@ -173,17 +178,19 @@ const createPermit = async (d: PemritCreate) => {
 
 
     if (d.is_legal) {
-      const clientLegal = await trx.insertInto('client_legal')
+      const legalObj = legal.parse(d);
+      const clientLegal = await trx
+        .insertInto(tableClientLegal)
         .values({
           permit_id: permit.uuid,
-          company_name: d.legal_company_name,
-          address: d.legal_address,
-          yegrpo_number: d.legal_yegrpo_number,
-          yegrpo_expire_date: d.legal_yegrpo_expire_date,
-          certificate_number: d.legal_certificate_number,
-          bank_details: d.legal_bank_details,
-          account_number: d.legal_account_number,
-          number_of_cars: d.legal_number_of_cars,
+          company_name: legalObj.legal_company_name,
+          address: legalObj.legal_address,
+          yegrpo_number: legalObj.legal_yegrpo_number,
+          yegrpo_expire_date: legalObj.legal_yegrpo_expire_date,
+          certificate_number: legalObj.legal_certificate_number,
+          bank_details: legalObj.legal_bank_details,
+          account_number: legalObj.legal_account_number,
+          number_of_cars: legalObj.legal_number_of_cars,
         })
         .returningAll()
         .executeTakeFirst();
@@ -191,14 +198,17 @@ const createPermit = async (d: PemritCreate) => {
       if (!clientLegal) throw err.Conflict('client_legal not created');
     }
     else {
-      const clientIndividual = await trx.insertInto('client_individual')
+      const individualObj = individual.parse(d);
+
+      const clientIndividual = await trx
+        .insertInto(tableClientIndividual)
         .values({
           permit_id: permit.uuid,
-          name: d.individual_name,
-          surname: d.individual_surname,
-          patronymic: d.individual_patronymic,
-          patent_number: d.individual_patent_number,
-          patent_expire_date: d.individual_patent_expire_date,
+          name: individualObj.individual_name,
+          surname: individualObj.individual_surname,
+          patronymic: individualObj.individual_patronymic,
+          patent_number: individualObj.individual_patent_number,
+          patent_expire_date: individualObj.individual_patent_expire_date,
         })
         .returningAll()
         .executeTakeFirst();
@@ -206,7 +216,8 @@ const createPermit = async (d: PemritCreate) => {
       if (!clientIndividual) throw err.Conflict('clientindividual not created');
     }
 
-    const driver = await trx.insertInto('driver')
+    const driver = await trx
+      .insertInto(tableDriver)
       .values({
         permit_id: permit.uuid,
         name: d.driver_name,
@@ -221,7 +232,7 @@ const createPermit = async (d: PemritCreate) => {
     if (!driver) throw err.Conflict('driver not created');
 
 
-    const transport = await trx.insertInto('transport')
+    const transport = await trx.insertInto(tableTransport)
       .values({
         permit_id: permit.uuid,
         brand: JSON.stringify(d.brand),

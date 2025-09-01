@@ -11,6 +11,7 @@ import { router } from './app/controller';
 import { connectCheck } from './infra/db';
 import { envCheck } from './infra/env';
 import { getEnv } from './infra/env/service';
+import { errorUtil } from './utils';
 
 
 const app = Fastify({ logger: { level: 'debug' } });
@@ -24,9 +25,6 @@ const start = async () => {
   try {
     await envCheck();
     await connectCheck();
-
-    // const zodFilter = new ZodFilter();
-    // app.setErrorHandler((error, request, reply) => zodFilter.catch(error, request, reply));
 
     await app.register(cors, { origin: true, credentials: true });
     await app.register(fastifyHelmet);
@@ -43,7 +41,12 @@ const start = async () => {
       prefix: '/api/public',
     });
 
-    s.registerRouter(contract, router, app);
+    // s.registerRouter(contract, router, app);
+
+    s.registerRouter(contract, router, app, {
+      requestValidationErrorHandler: errorUtil.requestValidationErrorHandler,
+      logInitialization: true,
+    });
 
     await app.listen({ port, host });
     console.log(`http://${host}:${port}`);
