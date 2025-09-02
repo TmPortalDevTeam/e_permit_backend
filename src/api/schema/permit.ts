@@ -102,7 +102,15 @@ export const permitActivityCreate = permitActivity;
 
 
 export const userGetOneRes = permit;
-export const permitGetAll = permit.extend({ text: z.string() }).partial().merge(commonQuery);
+export const permitGetAll = permit
+  .pick({ is_legal: true })
+  .extend({
+    text: z.string(),
+    status: strInt
+  })
+  .partial()
+  .merge(commonQuery);
+
 export const permitGetAllRes = z.object({
   count: z.number(),
   data: permit.pick({

@@ -12,6 +12,8 @@ import { connectCheck } from './infra/db';
 import { envCheck } from './infra/env';
 import { getEnv } from './infra/env/service';
 import { errorUtil } from './utils';
+import cron from 'node-cron';
+import { cronRevokeAndMoveToBlackHistory } from './infra/cron';
 
 
 const app = Fastify({ logger: { level: 'debug' } });
@@ -41,8 +43,6 @@ const start = async () => {
       prefix: '/api/public',
     });
 
-    // s.registerRouter(contract, router, app);
-
     s.registerRouter(contract, router, app, {
       requestValidationErrorHandler: errorUtil.requestValidationErrorHandler,
       logInitialization: true,
@@ -50,6 +50,9 @@ const start = async () => {
 
     await app.listen({ port, host });
     console.log(`http://${host}:${port}`);
+
+    cron.schedule('0 */4 * * *', cronRevokeAndMoveToBlackHistory);
+
   } catch (err) {
     console.log(err);
     process.exit(1);

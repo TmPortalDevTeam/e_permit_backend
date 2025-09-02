@@ -11,8 +11,10 @@ const API_PERMIT_SET_STATUS = '/api/permit/set-status';
 
 const basicAuth = {
   auth: {
-    username: "admin",
-    password: "Adm1n_TM_S3cr3t!",
+    username: getEnv('BASIC_AUTH_USERNAME'),
+    password: getEnv('BASIC_AUTH_PASSWORD')
+    // username: "admin",
+    // password: "Adm1n_TM_S3cr3t!",
   }
 };
 

@@ -8,6 +8,7 @@ import {
   PemritCreate,
   PermitActivityCreate,
   PermitCreateExternalApi,
+  PermitGetAll,
   PermitStatusUpdate,
   UpdatePermitStatus7
 } from '@src/api/schema/permit';
@@ -22,9 +23,9 @@ const createPermit = async (d: PemritCreate) => {
   return resp.parse({ data: one });
 }
 
-const getAllPermits = async (p: CommonQuery) => {
+const getAllPermits = async (p: PermitGetAll) => {
   const { limit, offset } = limitOffset(p);
-  const permits = await repo.getAllPermits({ limit, offset });
+  const permits = await repo.getAllPermits({ ...p, limit, offset });
   if (!permits) throw err.InternalServerError();
 
   return resp.parse({ data: permits });

@@ -9,14 +9,14 @@ const logDir = path.join(__dirname, "../../logs");
 const rotateTransport = new DailyRotateFile({
     filename: path.join(logDir, "error-%DATE%.log"),
     datePattern: "YYYY-MM-DD",
-    level: "error",
+    level: "warn",
     maxSize: "5m",
-    maxFiles: "2d",      // keep only the last 14 days
+    maxFiles: "5",      // keep only the last 14 days
     zippedArchive: false, // We do not archive old files, we just delete them
 });
 
 export const logger = winston.createLogger({
-    level: "error",
+    level: "info",
     format: winston.format.combine(
         winston.format.timestamp(),
         winston.format.json()

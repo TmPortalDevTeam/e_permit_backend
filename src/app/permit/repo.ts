@@ -5,7 +5,6 @@ import { db, DB } from '@infra/db/db';
 import { individual, legal, PemritCreate, PermitGetAll } from '@src/api/schema/permit';
 import { LimitOffset } from '@api/schema/common';
 
-
 const tableDriver = 'driver';
 const tableClientIndividual = 'client_individual';
 const tableClientLegal = 'client_legal';
@@ -252,10 +251,15 @@ const createPermit = async (d: PemritCreate) => {
   });
 }
 
-const getAllPermits = async (p: LimitOffset) => {
-  return await db
-    .selectFrom(table)
-    .leftJoin('users', 'users.uuid', 'permit.auth_id')
+const getAllPermits = async (p: Filter & LimitOffset) => {
+  let q = db.selectFrom(table).leftJoin('users', 'users.uuid', 'permit.auth_id');
+
+  if (p.is_legal !== undefined) q = q.where('is_legal', '=', p.is_legal);
+  if (p.status) q = q.where('status', '=', p.status);
+
+  const c = await q.select(o => o.fn.countAll().as('c')).executeTakeFirst();
+
+  const data = await q
     .selectAll(table)
     .select((eb) => [
       driver(eb),
@@ -272,6 +276,12 @@ const getAllPermits = async (p: LimitOffset) => {
     .offset(p.offset)
     .orderBy('permit.created_at', 'desc')
     .execute();
+
+
+  return {
+    count: Number(c?.c),
+    data
+  };
 };
 
 const getAllRejectedPermits = async (p: Filter & LimitOffset) => {

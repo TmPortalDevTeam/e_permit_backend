@@ -20,6 +20,9 @@ export const envSchema = z.object({
 
   E_PERMIT_API: z.string(),
   TUGDK_API: z.string(),
+
+  BASIC_AUTH_USERNAME: z.string(),
+  BASIC_AUTH_PASSWORD: z.string(),
 });
 
 export type Env = z.infer<typeof envSchema>;

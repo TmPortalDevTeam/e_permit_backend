@@ -17,7 +17,7 @@ export const permitContract = c.router(
     adminGetPermit: {
       method: 'GET',
       path: '/e-permit',
-      query: commonQuery,
+      query: schema.getAll,
       responses: { 200: resp }
     },
     rejectedPermit: {
