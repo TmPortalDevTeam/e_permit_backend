@@ -1,18 +1,19 @@
 import { LimitOffset } from '@api/schema/common';
 import { db, DB } from '@infra/db/db';
+import { UserGetAll } from '@src/api/schema/user';
 import { Insertable, Selectable, sql, Updateable } from 'kysely';
 
 type Table = DB['users'];
 const table = 'users';
-type Filter = Partial<Selectable<Table>>;
+type Filter = Partial<Selectable<Table> & UserGetAll>;
 type Insert = Insertable<Table>;
 type Edit = Updateable<Table>;
 
 const getAll = async (p: Filter & LimitOffset) => {
   let q = db.selectFrom(table);
 
-  if (p.name) q = q.where('name', 'ilike', `%${p.name}%`);
-  if (p.email) q = q.where('email', 'ilike', `%${p.email}%`);
+  if (p.text) q = q.where('name', 'ilike', `%${p.text}%`);
+  if (p.text) q = q.where('email', 'ilike', `%${p.text}%`);
 
   const c = await q.select(o => o.fn.countAll().as('c')).executeTakeFirst();
   const users = await q
