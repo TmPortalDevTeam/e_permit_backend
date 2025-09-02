@@ -1,7 +1,7 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
 import { authSchema as schema } from '../schema/auth';
-import { resp } from '../schema/common';
+import { resp, respBody } from '../schema/common';
 
 const c = initContract();
 
@@ -21,7 +21,7 @@ export const authContract = c.router(
     logout: {
       method: 'GET',
       path: '/logout',
-      responses: { 200: z.any() },
+      responses: { 200: respBody },
     },
   },
   { pathPrefix: '/api/admin' },

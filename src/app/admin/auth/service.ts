@@ -21,7 +21,8 @@ const login = async (p: Login) => {
   return resp.parse({
     data: {
       uuid: user.uuid,
-      type: user.role_name ?? '',
+      username: user.username,
+      role: user.role_name,
       token: accessToken,
     }
   });
