@@ -23,7 +23,7 @@ export const permitRouter = s.router(permitContract, {
   rejectedPermit: {
     handler: async ({ query }) => {
       const r = await service.rejectedPermits(query);
-      return { status: 201, body: r };
+      return { status: 200, body: r };
     },
   },
   adminGetPermitID: {
