@@ -258,6 +258,17 @@ const getAllPermits = async (p: FilterGetPermits & LimitOffset) => {
   if (p.is_legal !== undefined) q = q.where('is_legal', '=', p.is_legal);
   if (p.status && p.status.length > 0) q = q.where('status', 'in', p.status);
 
+  if (p.text) {
+    q = q.where((eb) =>
+      eb.or([
+        eb('type_of_cargo', 'ilike', `%${p.text}%`),
+        eb('email', 'ilike', `%${p.text}%`),
+        eb('phone', 'ilike', `%${p.text}%`),
+        eb('country', 'ilike', `%${p.text}%`),
+      ])
+    );
+  }
+
   const c = await q.select(o => o.fn.countAll().as('c')).executeTakeFirst();
 
   const data = await q

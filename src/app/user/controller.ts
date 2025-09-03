@@ -46,7 +46,7 @@ export const userRouter = s.router(userContract, {
       return { status: 200, body: r };
     },
   },
-  addPayment: {
+  addPayment: { // online toleg
     // hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ body }) => {
       const r = await service.addPayment(body);

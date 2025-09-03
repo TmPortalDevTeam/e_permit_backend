@@ -25,6 +25,7 @@ const edit = async (uuid: string, p: Edit) => {
   return db.updateTable(table).where('uuid', '=', uuid).set(p).returningAll().executeTakeFirst();
 };
 
+// online toleg
 const addPayment = async (p: PaymentCreate) => {
   return await db.transaction().execute(async (trx) => {
     const payment = await trx
