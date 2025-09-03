@@ -14,6 +14,7 @@ import { getEnv } from './infra/env/service';
 import { errorUtil } from './utils';
 import cron from 'node-cron';
 import { cronRevokeAndMoveToBlackHistory } from './infra/cron';
+import { openApi } from './utils/openapi-doc';
 
 
 const app = Fastify({ logger: { level: 'debug' } });
@@ -42,6 +43,8 @@ const start = async () => {
       root: path.join(process.cwd(), 'public'),
       prefix: '/api/public',
     });
+
+    app.get('/api/openapi', async () => openApi.document);
 
     s.registerRouter(contract, router, app, {
       requestValidationErrorHandler: errorUtil.requestValidationErrorHandler,
