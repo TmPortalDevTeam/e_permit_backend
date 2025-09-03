@@ -13,6 +13,7 @@ const tableTransport = 'transport';
 const table = 'permit';
 type Table = DB['permit'];
 type Filter = Partial<Selectable<Table> & PermitGetAll>;
+type FilterGetPermits = Omit<Partial<Selectable<Table>>, 'status'> & PermitGetAll;
 type Insert = Insertable<Table>;
 type Edit = Updateable<Table>;
 
@@ -251,11 +252,11 @@ const createPermit = async (d: PemritCreate) => {
   });
 }
 
-const getAllPermits = async (p: Filter & LimitOffset) => {
+const getAllPermits = async (p: FilterGetPermits & LimitOffset) => {
   let q = db.selectFrom(table).leftJoin('users', 'users.uuid', 'permit.auth_id');
 
   if (p.is_legal !== undefined) q = q.where('is_legal', '=', p.is_legal);
-  if (p.status) q = q.where('status', '=', p.status);
+  if (p.status && p.status.length > 0) q = q.where('status', 'in', p.status);
 
   const c = await q.select(o => o.fn.countAll().as('c')).executeTakeFirst();
 
@@ -276,7 +277,6 @@ const getAllPermits = async (p: Filter & LimitOffset) => {
     .offset(p.offset)
     .orderBy('permit.created_at', 'desc')
     .execute();
-
 
   return {
     count: Number(c?.c),
