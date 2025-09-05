@@ -1,8 +1,9 @@
 import z from 'zod';
 import { initContract } from '@ts-rest/core';
 import { permitSchema as schema } from '../schema/permit';
-import { addFile, commonQuery, paramsCode, paramsId, paramsPermitID, paramsPermitId, resp, respBody } from '../schema/common';
+import { addFile, paramsCode, paramsId, paramsPermitID, paramsPermitId, resp, respBody } from '../schema/common';
 import { authoritiesSchema } from '../schema/authorities';
+import { getAllPermitsExternalApi } from '../schema/permitExternalApi';
 
 const c = initContract();
 
@@ -59,6 +60,12 @@ export const permitContract = c.router(
     adminGetPermits: {
       method: 'GET',
       path: '/permits',
+      responses: { 200: resp }
+    },
+    adminGetAllPermitsExternalApi: {
+      method: 'GET',
+      path: '/permits/all',
+      query: getAllPermitsExternalApi,
       responses: { 200: resp }
     },
     adminAddPermits: {

@@ -14,6 +14,7 @@ import {
 } from '@src/api/schema/permit';
 import { fileManagerService } from '@src/infra/file-manager';
 import { AuthoritiesCreate, AuthoritiesQuotaCreate } from '@src/api/schema/authorities';
+import { GetAllPermitsExternalApi } from '@src/api/schema/permitExternalApi';
 
 
 const createPermit = async (d: PemritCreate) => {
@@ -136,6 +137,12 @@ const getPermits = async () => {
   }
 
   return resp.parse({ data: content })
+}
+
+const getAllPermitsExternalApi = async (params: GetAllPermitsExternalApi) => {
+  const r = await permitServiceAPI.getAllPermits(params);
+  if (!r) throw err.BadGateway('Failed to read response body');
+  return resp.parse({ data: r })
 }
 
 const addPermitsExternalApi = async (d: PermitCreateExternalApi) => {
@@ -280,4 +287,5 @@ export const permitService = {
   changePermitStatus,
   getPermits,
   addPermitsExternalApi,
+  getAllPermitsExternalApi
 };

@@ -4,6 +4,7 @@ import { apiEpermit, apiTUGDK } from './config';
 import { loggerHttp } from '@src/utils/logger';
 import { PermitActivityCreate, PermitCreateExternalApi, UpdatePermitStatus7 } from '@src/api/schema/permit';
 import { AuthoritiesCreate, AuthoritiesQuotaCreate } from '@src/api/schema/authorities';
+import { GetAllPermitsExternalApi } from '@src/api/schema/permitExternalApi';
 
 const PERMIT_API_URL = getEnv('E_PERMIT_API');
 const TUGDK_API_URL = getEnv('TUGDK_API');
@@ -52,6 +53,21 @@ const getPermits = async () => {
   const url: string = '/permits';
   try {
     const response = await apiEpermit.get(url, basicAuth);
+    return response.data;
+  } catch (e: any) {
+    loggerHttp(e, PERMIT_API_URL + url);
+    return null;
+  }
+};
+
+const getAllPermits = async (params: GetAllPermitsExternalApi) => {
+  const url: string = '/permits/all';
+  try {
+    const config = {
+      ...(basicAuth || {}),
+      params
+    };
+    const response = await apiEpermit.get(url, config);
     return response.data;
   } catch (e: any) {
     loggerHttp(e, PERMIT_API_URL + url);
@@ -175,6 +191,7 @@ const addPermitActivities = async (permitID: string, data: PermitActivityCreate)
 export const permitServiceAPI = {
   getAuthorityByCode,
   getPermits,
+  getAllPermits,
   addPermits,
   getPermitsByID,
   revokePermit,
