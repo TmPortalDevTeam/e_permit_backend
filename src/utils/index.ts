@@ -3,8 +3,6 @@ export * from './http-errors';
 export * from './jwt.util';
 export * from './logger';
 export * from './nodemailer';
-export * from './zod-filter';
-
 
 
 

@@ -16,7 +16,7 @@ const getAll = async (p: Filter & LimitOffset) => {
 
     const c = await q.select(o => o.fn.countAll().as('c')).executeTakeFirst();
 
-    const data = await q
+    const companies = await q
         .select(['uuid', 'permit_id', 'company_name', 'moved_at'])
         .limit(p.limit)
         .offset(p.offset)
@@ -24,7 +24,7 @@ const getAll = async (p: Filter & LimitOffset) => {
         .execute();
     return {
         count: Number(c?.c),
-        data
+        companies
     };
 };
 

@@ -338,7 +338,7 @@ const getPermit = async (id: string) => {
     .selectFrom(table)
     .leftJoin('users', 'users.uuid', 'permit.auth_id');
 
-  if (id) q = q.where('uuid', '=', id);
+  if (id) q = q.where('permit.uuid', '=', id);
 
   const data = await q
     .selectAll(table)
