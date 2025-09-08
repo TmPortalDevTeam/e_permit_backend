@@ -14,43 +14,13 @@ const basicAuth = {
   auth: {
     username: getEnv('BASIC_AUTH_USERNAME'),
     password: getEnv('BASIC_AUTH_PASSWORD')
-    // username: "admin",
-    // password: "Adm1n_TM_S3cr3t!",
   }
 };
 
-const updatePermitStatus = async (permitId: string, status: StrInt) => {
-  try {
-    const response = await apiTUGDK.post(API_PERMIT_SET_STATUS, { permitId, status });
-    return response.data;
-  } catch (e: any) {
-    loggerHttp(e, TUGDK_API_URL + API_PERMIT_SET_STATUS);
-    return null;
-  }
-};
 
-const permitSetStatus = async (permitId: string, status: number) => {
-  try {
-    const response = await apiTUGDK.post(API_PERMIT_SET_STATUS, { permitId, status });
-    return response.data;
-  } catch (e: any) {
-    loggerHttp(e, TUGDK_API_URL + API_PERMIT_SET_STATUS);
-    return null;
-  }
-};
-
-const permitSetStatus7 = async (data: UpdatePermitStatus7) => {
-  try {
-    const response = await apiTUGDK.post(API_PERMIT_SET_STATUS, data);
-    return response.data;
-  } catch (e: any) {
-    loggerHttp(e, TUGDK_API_URL + API_PERMIT_SET_STATUS);
-    return null;
-  }
-};
-
-const getPermits = async () => {
-  const url: string = '/permits';
+/** Authorities */
+const getAuthorities = async () => {
+  const url: string = '/authorities';
   try {
     const response = await apiEpermit.get(url, basicAuth);
     return response.data;
@@ -60,14 +30,45 @@ const getPermits = async () => {
   }
 };
 
-const getAllPermits = async (params: GetAllPermitsExternalApi) => {
-  const url: string = '/permits/all';
+const postAuthorities = async (data: AuthoritiesCreate) => {
+  const url: string = '/authorities';
   try {
-    const config = {
-      ...(basicAuth || {}),
-      params
-    };
-    const response = await apiEpermit.get(url, config);
+    const response = await apiEpermit.post(url, data, basicAuth);
+    return response.data;
+  } catch (e: any) {
+    loggerHttp(e, PERMIT_API_URL + url);
+    return null;
+  }
+};
+
+const addAuthoritiesQuota = async (code: string, data: AuthoritiesQuotaCreate) => {
+  const url: string = `/authorities/${code}/quotas`;
+  try {
+    const response = await apiEpermit.post(url, data, basicAuth);
+    return response.data;
+  } catch (e: any) {
+    loggerHttp(e, PERMIT_API_URL + url);
+    return null;
+  }
+};
+
+const getAuthorityByCode = async (authorityCode: string) => {
+  const url: string = `/authorities/${authorityCode}`;
+  try {
+    const response = await apiEpermit.get(url, basicAuth);
+    return response.data;
+  } catch (e: any) {
+    loggerHttp(e, PERMIT_API_URL + url);
+    return null;
+  }
+};
+
+
+/** Permits */
+const getPermits = async () => { // TODO add filter
+  const url: string = '/permits';
+  try {
+    const response = await apiEpermit.get(url, basicAuth);
     return response.data;
   } catch (e: any) {
     loggerHttp(e, PERMIT_API_URL + url);
@@ -85,6 +86,17 @@ const addPermits = async (data: PermitCreateExternalApi) => {
     return null;
   }
 };
+
+const addPermitActivities = async (permitID: string, data: PermitActivityCreate) => {
+  const url: string = `/permits/${permitID}/activities`;
+  try {
+    const response = await apiEpermit.post(url, data, basicAuth);
+    return response.data;
+  } catch (e: any) {
+    loggerHttp(e, PERMIT_API_URL + url);
+    return null;
+  }
+}
 
 const getPermitsByID = async (permitID: string) => {
   const url: string = `/permits/${permitID}`;
@@ -130,12 +142,14 @@ const findPermit = async (permitID: string) => {
   }
 };
 
-
-/** Authorities */
-const getAuthorities = async () => {
-  const url: string = '/authorities';
+const getAllPermits = async (params: GetAllPermitsExternalApi) => {
+  const url: string = '/permits/all';
   try {
-    const response = await apiEpermit.get(url, basicAuth);
+    const config = {
+      ...(basicAuth || {}),
+      params
+    };
+    const response = await apiEpermit.get(url, config);
     return response.data;
   } catch (e: any) {
     loggerHttp(e, PERMIT_API_URL + url);
@@ -143,49 +157,40 @@ const getAuthorities = async () => {
   }
 };
 
-const postAuthorities = async (data: AuthoritiesCreate) => {
-  const url: string = '/authorities';
+
+/** TUGDK (TÜRKMENULAGGÖZEGÇILIK DÖWLET KÄRHANASY) */
+const updatePermitStatus = async (permitId: string, status: StrInt) => {
   try {
-    const response = await apiEpermit.post(url, data, basicAuth);
+    const response = await apiTUGDK.post(API_PERMIT_SET_STATUS, { permitId, status });
     return response.data;
   } catch (e: any) {
-    loggerHttp(e, PERMIT_API_URL + url);
+    loggerHttp(e, TUGDK_API_URL + API_PERMIT_SET_STATUS);
     return null;
   }
 };
 
-const getAuthorityByCode = async (authorityCode: string) => {
-  const url: string = `/authorities/${authorityCode}`;
+const permitSetStatus = async (permitId: string, status: number) => {
   try {
-    const response = await apiEpermit.get(url, basicAuth);
+    const response = await apiTUGDK.post(API_PERMIT_SET_STATUS, { permitId, status });
     return response.data;
   } catch (e: any) {
-    loggerHttp(e, PERMIT_API_URL + url);
+    loggerHttp(e, TUGDK_API_URL + API_PERMIT_SET_STATUS);
     return null;
   }
-}
+};
 
-const addAuthoritiesQuota = async (code: string, data: AuthoritiesQuotaCreate) => {
-  const url: string = `/authorities/${code}/quotas`;
+const permitSetStatus7 = async (data: UpdatePermitStatus7) => {
   try {
-    const response = await apiEpermit.post(url, data, basicAuth);
+    const response = await apiTUGDK.post(API_PERMIT_SET_STATUS, data);
     return response.data;
   } catch (e: any) {
-    loggerHttp(e, PERMIT_API_URL + url);
+    loggerHttp(e, TUGDK_API_URL + API_PERMIT_SET_STATUS);
     return null;
   }
-}
+};
 
-const addPermitActivities = async (permitID: string, data: PermitActivityCreate) => {
-  const url: string = `/permits/${permitID}/activities`;
-  try {
-    const response = await apiEpermit.post(url, data, basicAuth);
-    return response.data;
-  } catch (e: any) {
-    loggerHttp(e, PERMIT_API_URL + url);
-    return null;
-  }
-}
+
+
 
 
 export const permitServiceAPI = {
