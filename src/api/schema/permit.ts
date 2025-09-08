@@ -96,7 +96,7 @@ export const permitCreateExternalApi = permitExternalApi.omit({ uuid: true });
 export const permitActivity = z.object({
   activity_type: z.enum(['ENTRANCE', 'EXIT']),
   activity_timestamp: strInt,
-  activity_details: z.string(),
+  activity_details: z.string().min(0).max(1000).optional(),
 });
 export const permitActivityCreate = permitActivity;
 

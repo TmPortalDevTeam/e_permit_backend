@@ -11,5 +11,17 @@ module.exports = {
                 NODE_ENV: 'production',
             },
         },
+        {
+            name: 'cron-jobs',
+            script: './build/src/cron.js',
+            time: true,
+            kill_timeout: 10000,
+            instances: 1,
+            exec_mode: 'fork',
+            autorestart: true,
+            env: {
+                NODE_ENV: 'production',
+            },
+        },
     ],
 };

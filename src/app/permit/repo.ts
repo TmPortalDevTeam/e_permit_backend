@@ -358,8 +358,15 @@ const getPermit = async (id: string) => {
   return data;
 };
 
-const revokeAndMoveToBlackHistory = async () => {
-  
+/** Foreign table query DANGER */
+const getExpiredPermits = async () => {
+  return db
+    .selectFrom('epermit_ledger_permits')
+    .select(['permit_id', 'company_name', 'used', 'issued_at', 'issuer'])
+    .where('used', '=', false)
+    .where('issuer', '=', 'TM')
+    .where(sql<boolean>`TO_TIMESTAMP(${sql.ref('issued_at')}, 'DD/MM/YYYY') < NOW() - INTERVAL '7 days'`)
+    .execute();
 };
 
 // const getPermitCompanyIDAndEmail = async (ledgerID: string): Promise<{ companyID: string; email: string } | null> => {
@@ -451,5 +458,7 @@ export const permitRepo = {
   getAllRejectedPermits,
   getPermit,
   getOne,
-  getOneForEmail
+  getOneForEmail,
+
+  getExpiredPermits
 };

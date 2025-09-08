@@ -125,7 +125,7 @@ export const permitContract = c.router(
     addPermitActivity: {
       method: 'POST',
       path: '/permit-activity/:permitID/activities',
-      pathParams: paramsPermitID,
+      pathParams: z.object({ permitID: z.string() }),
       body: schema.permitActivityCreate,
       responses: { 200: resp }
     },

@@ -12,8 +12,6 @@ import { connectCheck } from './infra/db';
 import { envCheck } from './infra/env';
 import { getEnv } from './infra/env/service';
 import { errorUtil } from './utils';
-import cron from 'node-cron';
-import { cronRevokeAndMoveToBlackHistory } from './infra/cron';
 import { openApi } from './utils/openapi-doc';
 
 
@@ -51,11 +49,10 @@ const start = async () => {
       logInitialization: true,
     });
 
+    // s.registerRouter(contract, router, app);
+
     await app.listen({ port, host });
     console.log(`http://${host}:${port}`);
-
-    cron.schedule('0 */4 * * *', cronRevokeAndMoveToBlackHistory);
-
   } catch (err) {
     console.log(err);
     process.exit(1);

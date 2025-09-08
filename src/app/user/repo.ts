@@ -90,7 +90,8 @@ const getUserHistory = async () => {
 const getUserHistoryByUUID = async (userId: string) => {
   return await db
     .selectFrom('epermit_ledger_permits')
-    .leftJoin('permit', (join) => join.on('epermit_ledger_permits.company_id', '=', sql`permit.uuid::text`))
+    .leftJoin('permit', (join) => join.on(sql`epermit_ledger_permits.company_id::uuid`, '=', `permit.uuid`))
+    // .leftJoin('permit', (join) => join.on('epermit_ledger_permits.company_id', '=', sql`permit.uuid::text`))
     .leftJoin('users', 'permit.auth_id', 'users.uuid')
     .select((eb) => [
       'epermit_ledger_permits.permit_id',

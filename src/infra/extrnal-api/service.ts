@@ -91,7 +91,7 @@ const addPermitActivities = async (permitID: string, data: PermitActivityCreate)
   const url: string = `/permits/${permitID}/activities`;
   try {
     const response = await apiEpermit.post(url, data, basicAuth);
-    return response.data;
+    return response.status;
   } catch (e: any) {
     loggerHttp(e, PERMIT_API_URL + url);
     return null;

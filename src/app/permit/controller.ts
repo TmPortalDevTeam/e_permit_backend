@@ -7,14 +7,12 @@ import { err } from '@src/utils';
 
 export const permitRouter = s.router(permitContract, {
   adminAddPermit: {
-    // hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ body }) => {
       const r = await service.createPermit(body);
       return { status: 201, body: r };
     },
   },
   adminGetPermit: {
-    // hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ query }) => {
       const r = await service.getAllPermits(query);
       return { status: 200, body: r };
@@ -27,7 +25,6 @@ export const permitRouter = s.router(permitContract, {
     },
   },
   adminGetPermitID: {
-    // hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ params }) => {
       const r = await service.getPermitByID(params.id);
       return { status: 200, body: r };
@@ -146,7 +143,6 @@ export const permitRouter = s.router(permitContract, {
     },
   },
   addEmail: {
-    // hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ params, request }) => {
       const data = await request.file();
       if (!data) throw err.BadRequest('File not found in request');
@@ -156,7 +152,6 @@ export const permitRouter = s.router(permitContract, {
     },
   },
   permitStatus: {
-    // hooks: { preHandler: [auth, checkRole(['superadmin'])] },
     handler: async ({ params }) => {
       const r = await service.getPermitStatus(params.permitUUID);
       return { status: 200, body: r };

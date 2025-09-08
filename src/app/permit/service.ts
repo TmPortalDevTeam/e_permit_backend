@@ -59,7 +59,7 @@ const getPermitByID = async (id: string) => {
 
   if (!updated) throw err.InternalServerError('Update error');
 
-  const result = repo.getPermit(id);
+  const result = await repo.getPermit(id);
   if (!result) throw err.InternalServerError('Error find By Id');
 
   await tugdkServiceAPI.updatePermitStatus(id, 2);
@@ -209,10 +209,10 @@ const addQuota = async (code: string, d: AuthoritiesQuotaCreate) => {
 }
 
 const AddPermitActivities = async (permitID: string, d: PermitActivityCreate) => {
-  const response = await permitServiceAPI.addPermitActivities(permitID, d);
-  if (!response) throw err.BadGateway('Failed to send request to external API add Permit Activities');
+  const responseStatus = await permitServiceAPI.addPermitActivities(permitID, d);
+  if (responseStatus !== 200) throw err.BadGateway('Failed to send request to external API add Permit Activities');
 
-  return resp.parse({ data: response });
+  return resp.parse({ data: '' });
 }
 
 export const sendEmail = async (ledgerID: string, pdf: MultipartFile) => {

@@ -53,12 +53,12 @@ export const userContract = c.router(
       body: paymentSchema.create,
       responses: { 200: respBody, }
     },
-    history: {   // 	history = "/history"
+    history: {   
       method: 'GET',
       path: '/history',
       responses: { 200: resp }
     },
-    usr_history: {   // // usr_history = "/history/{uuid}"
+    usr_history: {
       method: 'GET',
       path: '/history/:uuid',
       pathParams: paramsUuid,

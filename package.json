@@ -10,9 +10,11 @@
   "license": "Apache-2.0",
   "keywords": [],
   "scripts": {
+    "cron": "npx tsx watch --env-file=.env src/cron.ts",
     "dev:l": "npx tsx watch --env-file=.env src/index.ts",
     "dev": "rm -rf ./build && npx tsx watch --env-file=.env src/index.ts",
     "build": "rm -rf ./build && tsc",
+    "build:l": "tsc",
     "start": "node --env-file=.env build/src/index.js",
     "migrate": "npx kysely migrate:latest",
     "codegen": "kysely-codegen --out-file ./src/infra/db/types.d.ts",
