@@ -210,7 +210,7 @@ const addQuota = async (code: string, d: AuthoritiesQuotaCreate) => {
 
 const AddPermitActivities = async (permitID: string, d: PermitActivityCreate) => {
   const response = await permitServiceAPI.addPermitActivities(permitID, d);
-  if (!response) throw err.InternalServerError('Failed to send request to external API add Permit Activities');
+  if (!response) throw err.BadGateway('Failed to send request to external API add Permit Activities');
 
   return resp.parse({ data: response });
 }
