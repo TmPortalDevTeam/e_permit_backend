@@ -25,7 +25,7 @@ async function revokeAndMoveToBlackHistory() {
         .select(['permit_id', 'company_name', 'used', 'issued_at', 'issuer'])
         .where('used', '=', false)
         .where('issuer', '=', 'TM')
-        .where(sql<boolean>`TO_TIMESTAMP(${sql.ref('issued_at')}, 'DD/MM/YYYY') < NOW() - INTERVAL '5 days'`)
+        .where(sql<boolean>`TO_TIMESTAMP(${sql.ref('issued_at')}, 'DD/MM/YYYY') < NOW() - INTERVAL '7 days'`)
         .execute();
 
     await db.transaction().execute(async (trx) => {

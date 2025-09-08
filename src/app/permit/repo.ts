@@ -358,6 +358,10 @@ const getPermit = async (id: string) => {
   return data;
 };
 
+const revokeAndMoveToBlackHistory = async () => {
+  
+};
+
 // const getPermitCompanyIDAndEmail = async (ledgerID: string): Promise<{ companyID: string; email: string } | null> => {
 //   const result = await db
 //     .selectFrom('epermit_ledger_permits as elp')
