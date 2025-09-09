@@ -2,8 +2,7 @@ import { s } from '@app/router';
 import { auth, checkRole } from '../admin/auth/auth.middleware';
 import { userContract } from '@src/api/contracts/user';
 import { userService as service } from './service';
-import { err } from '@src/utils';
-import { Multipart, PaymentFieldsSchema, strDate, strInt, typePayment, uuidSchema } from '@src/api/schema/common';
+import { PaymentFieldsSchema } from '@src/api/schema/common';
 import { validateOfflinePayment } from './middleware';
 
 
@@ -57,7 +56,7 @@ export const userRouter = s.router(userContract, {
   addOflinePayment: {
     hooks: { preHandler: validateOfflinePayment },
     handler: async ({ request }) => {
-    
+
       const file = request.uploadedFile;
       const data: PaymentFieldsSchema = request.validatedPayment!;
 
