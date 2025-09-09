@@ -4,10 +4,13 @@ dotenv.config();
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Payload } from './api/schema/auth';
+import { PaymentFieldsSchema } from './api/schema/common';
 
 declare module 'fastify' {
   interface FastifyRequest {
     user?: Payload; // Replace `any` with a proper JWT payload type if known
+    validatedPayment?: PaymentFieldsSchema; // добавляем тип для валидированных данных
+    uploadedFile?: any; // можешь указать конкретный тип файла, если используешь Multipart
   }
 }
 

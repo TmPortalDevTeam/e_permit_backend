@@ -47,13 +47,20 @@ export const userContract = c.router(
       body: schema.getOneDepositBalance,
       responses: { 200: respBody }
     },
-    addPayment: {
+    addPayment: { // online toleg
       method: 'POST',
       path: '/payment',
-      body: paymentSchema.create,
+      body: paymentSchema.createOnlinePayment,
       responses: { 200: respBody, }
     },
-    history: {   
+    addOflinePayment: { // ofline toleg
+      method: 'POST',
+      path: '/payment/ofline',
+      contentType: 'multipart/form-data',
+      body: paymentSchema.createOflinePayment,
+      responses: { 201: respBody }
+    },
+    history: {
       method: 'GET',
       path: '/history',
       responses: { 200: resp }

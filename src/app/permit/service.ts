@@ -226,29 +226,26 @@ export const sendEmail = async (ledgerID: string, pdf: MultipartFile) => {
   if (!permit) throw err.InternalServerError('Do not find permit_uuid != company_id for email');
 
   const email = permit.email;
-  if (!email) throw err.InternalServerError('Email empty or undefined');
+  if (!email) throw err.NotFound('Email empty or undefined');
 
   const buffer = await pdf.toBuffer();
   if (!buffer) throw err.BadRequest();
 
   const file = await fileManagerService.save({ meta: pdf, buffer, folder: 'public' });
 
+  let arrError = [];
+  const status: number = 5;
+  const response = await tugdkServiceAPI.permitSetStatus(company_id, status);
+  if (!response) arrError.push({ type: 'tugdk', data: response, isError: true, });
+  else arrError.push({ type: 'tugdk', data: response, isError: false, });
+
   const emailStatus: boolean = await sendEmailWithNodemailer(email, file);
-  if (!emailStatus) throw err.BadGateway('Email send pdf file error, please say admin')
+  arrError.push({ type: 'email', data: response, isError: emailStatus, email });
 
   const fileRemove = await fileManagerService.remove({ fileName: file, folder: 'public' });
-  if (!fileRemove) logger.error({ message: 'Remove file error', date: '/public/' + file })
+  if (!fileRemove) logger.error({ message: 'Remove file error', date: '/public/' + file });
 
-  const status: number = 5;
-  console.log("company_id: ", company_id )
-  console.log("--------------------------------------------------------" )
-  const response = await tugdkServiceAPI.permitSetStatus(company_id, status);
-  if (!response) throw err.BadGateway('External API request failed update permitSetStatus');
-
-  return {
-    status: "Email sent and status updated successfully",
-    email,
-  }
+  return arrError;
 };
 
 const getPermitStatus = async (permitUUID: string) => {

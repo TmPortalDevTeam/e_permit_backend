@@ -13,7 +13,7 @@ import { permitRepo } from '../permit/repo';
 import { paymentRepo } from '../payment/repo';
 import { blackHistoryRepo } from '../blackHistory/repo';
 import { BlackHistoryGetAll } from '@src/api/schema/blackHistory';
-import { PaymentCreate } from '@src/api/schema/payment';
+import { OnlinePaymentCreate } from '@src/api/schema/payment';
 
 const deductionAmount = getEnv('DEDUCTION_AMOUNT'); // 450.0
 
@@ -134,8 +134,8 @@ export const getDepositBalance = async (p: DepositBalance) => {
 };
 
 // online toleg
-export const addPayment = async (p: PaymentCreate) => {
-  const one = await paymentRepo.addPayment(p);
+export const addPayment = async (p: OnlinePaymentCreate) => {
+  const one = await paymentRepo.addPayment({ ...p, type: 'online' });
   if (!one) err.Conflict("Do not payment add");
 
   return { message: 'Payment added successfully' }

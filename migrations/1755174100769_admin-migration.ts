@@ -1,13 +1,14 @@
 import { sql, type Kysely } from 'kysely';
 
-const table = 'admins';
+const table = 'payment';
 
-export async function up(db: Kysely<unknown>): Promise<void> {
+export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .alterTable(table)
+    .addColumn('type', 'varchar')
+    .addColumn('pay_date', 'timestamptz')
     .addColumn('document_number', 'varchar')
     .addColumn('filename', 'varchar')
-    .addColumn('payDate', 'timestamptz')
     .addColumn('createdAt', 'timestamptz', c => c.notNull().defaultTo(sql`now()`))
     .execute();
 }

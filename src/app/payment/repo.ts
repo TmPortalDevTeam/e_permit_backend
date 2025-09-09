@@ -2,12 +2,12 @@ import { LimitOffset } from '@api/schema/common';
 import { db, DB } from '@infra/db/db';
 import { err } from '@src/utils';
 import { Insertable, Selectable, Updateable } from 'kysely';
-import { PaymentCreate } from '../../api/schema/payment';
+import { OnlinePaymentCreate } from '../../api/schema/payment';
 
 type Table = DB['payment'];
 const table = 'payment';
 type Filter = Partial<Selectable<Table>>;
-type Insert = Insertable<Table>;
+type Insert = Insertable<Table> & { permit_id: string };
 type Edit = Updateable<Table>;
 
 const findOne = async (p: Filter) => {
@@ -26,7 +26,7 @@ const edit = async (uuid: string, p: Edit) => {
 };
 
 // online toleg
-const addPayment = async (p: PaymentCreate) => {
+const addPayment = async (p: Insert) => {
   return await db.transaction().execute(async (trx) => {
     const payment = await trx
       .insertInto(table)

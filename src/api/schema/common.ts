@@ -35,12 +35,10 @@ export const paramsPermitID = z.object({ permitID: z.string().uuid() });
 export const strInt = z.union([z.string(), z.number().int()]).refine((v) => Number.isInteger(+v)).transform((v) => +v);
 export type StrInt = z.infer<typeof strInt>;
 
-
 export const strNumber = z.union([z.string(), z.number()]).refine((v) => !isNaN(+v)).transform((v) => +v);
 export type StrNumber = z.infer<typeof strNumber>;
 
 export const strDate = z.string().transform((v) => new Date(v)).refine((v) => isDate(v));
-
 
 export const respBody = z.any();
 
@@ -50,3 +48,26 @@ export const resp = z.object({
   code: z.string().default('SS-10000'),
   data: z.any().default(null)
 });
+
+export interface Multipart {
+  type: 'field'
+  fieldname: string
+  value: string
+  fieldnameTruncated: boolean
+  valueTruncated: boolean
+  encoding: string
+  mimetype: string
+}
+
+export const uuidSchema = z.string().uuid({ message: "must be a valid UUID" });
+
+export const typePayment = z.enum(['online', 'bank', 'accountant'], { message: "invalid type" });
+
+export const paymentFieldsSchema = z.object({
+  permit_id: z.string().uuid(),
+  amount: z.coerce.number().int(),
+  type: typePayment,
+  pay_date: z.coerce.date(),
+  document_number: z.string().min(1),
+});
+export type PaymentFieldsSchema = z.infer<typeof paymentFieldsSchema>;

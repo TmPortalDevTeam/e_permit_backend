@@ -39,9 +39,6 @@ export const sendEmailWithNodemailer = async (toEmail: string, fileName: string)
         return true;
     } catch (e: any) {
         loggerHttp(e, email);
-        const fileRemove = await fileManagerService.remove({ fileName, folder: 'public' });
-        if (!fileRemove) logger.error({ message: 'Remove file error', date: '/public/' + fileName })
-
         return false;
     }
 };

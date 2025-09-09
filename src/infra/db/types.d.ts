@@ -76,8 +76,13 @@ export interface Driver {
 
 export interface Payment {
   amount: number | null;
+  createdAt: Generated<Timestamp>;
+  document_number: string | null;
+  filename: string | null;
   order_id: string | null;
+  pay_date: Timestamp | null;
   permit_id: string | null;
+  type: string | null;
   uuid: Generated<string>;
 }
 
