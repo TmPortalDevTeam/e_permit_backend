@@ -61,7 +61,7 @@ export interface Multipart {
 
 export const uuidSchema = z.string().uuid({ message: "must be a valid UUID" });
 
-export const typePayment = z.enum(['online', 'bank', 'accountant'], { message: "invalid type" });
+export const typePayment = z.enum(['online', 'bank', 'accountant'], { message: "invalid type, type is (online, bank, accountant)" });
 
 export const paymentFieldsSchema = z.object({
   permit_id: z.string().uuid(),
@@ -69,5 +69,20 @@ export const paymentFieldsSchema = z.object({
   type: typePayment,
   pay_date: z.coerce.date(),
   document_number: z.string().min(1),
+
+  // java Create Permit
+  issued_for: z.string().min(2),
+  permit_type: z.coerce.number().int().min(1).max(4),
+  permit_year: z.coerce.number().int(),
+  plate_number: z.string().min(1),
+  company_name: z.string().min(1),
+  company_id: z.string().min(1),
+  departure_country: z.string().min(1),
+  arrival_country: z.string().min(1),
+
+  // change status 
+  permitId: z.string().uuid(),
+  status: z.coerce.number().int(),
+
 });
 export type PaymentFieldsSchema = z.infer<typeof paymentFieldsSchema>;

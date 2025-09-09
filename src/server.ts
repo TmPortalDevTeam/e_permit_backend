@@ -42,7 +42,6 @@ const start = async () => {
       prefix: '/api/public',
     });
 
-    console.log(getEnv('EMAIL_PASSWORD'))
     app.get('/api/openapi', async () => openApi.document);
 
     s.registerRouter(contract, router, app, {

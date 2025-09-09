@@ -1,5 +1,6 @@
 import { getEnv } from '@src/infra/env/service';
-import { limitOffset, resp } from '@api/schema/common';
+import { limitOffset, PaymentFieldsSchema, resp } from '@api/schema/common';
+import { permitServiceAPI, tugdkServiceAPI } from '@src/infra/extrnal-api/service';
 import { err } from '@src/utils';
 import {
   UserAddDeposite,
@@ -13,7 +14,11 @@ import { permitRepo } from '../permit/repo';
 import { paymentRepo } from '../payment/repo';
 import { blackHistoryRepo } from '../blackHistory/repo';
 import { BlackHistoryGetAll } from '@src/api/schema/blackHistory';
-import { OnlinePaymentCreate } from '@src/api/schema/payment';
+import { OflinePaymentCreate, OnlinePaymentCreate } from '@src/api/schema/payment';
+import { MultipartFile } from '@fastify/multipart';
+import { fileManagerService } from '@src/infra/file-manager';
+import { permitCreateExternalApi, PermitCreateExternalApi } from '@src/api/schema/permit';
+
 
 const deductionAmount = getEnv('DEDUCTION_AMOUNT'); // 450.0
 
@@ -151,6 +156,60 @@ export const getUserHistoryByUUID = async (userId: string) => {
   return resp.parse({ data: r });
 };
 
+/** buhgalter Payment And UpdatetExternelApi Satatu And CreatePermitExternelApi 
+ * Bugalter toleg kabul etyar, sonra sistema
+ * 1) ozinde tolegi check yatda saklaya check nomer bilen,
+ * 2) status tazeleya tugtk external api
+ * 3) java swagger permit create etyar   
+ */
+const BPaUSaCP = async (f: MultipartFile, d: PaymentFieldsSchema) => {
+  /** file download to buffer */
+  const buffer = await f.toBuffer();
+  if (!buffer) throw err.BadRequest('Bad request file');
+
+  /** check data for create permit */
+  const createPermit = permitCreateExternalApi.safeParse(d);
+  if (!createPermit.success) throw err.BadRequest('Bad request for create permit')
+
+  /** change status local permit */
+  const one = await permitRepo.findOne({ uuid: d.permitId });
+  if (!one) throw err.NotFound('Permit');
+
+  const updated = await permitRepo.edit(d.permitId, { 'status': d.status });
+  if (!updated) throw err.InternalServerError(`Failed to update permit ${d.permitId}`);
+
+  /** tugdk extern api request change status */
+  const responseTugdk = await tugdkServiceAPI.permitSetStatus(d.permitId, d.status);
+  if (!responseTugdk) throw err.InternalServerError('Failed to send status update to external API tugdk');
+
+  /** Java API create permit request */
+  const response = await permitServiceAPI.addPermits(createPermit.data);
+  if (!response) throw err.BadGateway('Failed to add permit to external API or You have reached your permit quota in the system.');
+  
+  /** save document  */
+  const file = await fileManagerService.save({ meta: f, buffer, folder: 'public' });
+  
+  /** create payment onfline */
+  const addPayment: OflinePaymentCreate = {
+    permit_id: d.permit_id,
+    amount: d.amount,
+    type: d.type,
+    pay_date: d.pay_date,
+    document_number: d.departure_country,
+    filename: file,
+  }
+
+  const createdPayment = await paymentRepo.create(addPayment);
+  if (!createdPayment) {
+    await fileManagerService.remove({ fileName: file, folder: 'public' });
+    throw err.InternalServerError('Not created');
+  }
+
+  return resp.parse({ data: null });
+}
+
+
+
 
 export const userService = {
   AddUsers,
@@ -161,5 +220,6 @@ export const userService = {
   getDepositBalance,
   addPayment,
   getPermitsByUserId,
-  getUserHistoryByUUID
+  getUserHistoryByUUID,
+  BPaUSaCP
 };

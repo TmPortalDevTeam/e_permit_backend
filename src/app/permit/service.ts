@@ -236,11 +236,11 @@ export const sendEmail = async (ledgerID: string, pdf: MultipartFile) => {
   let arrError = [];
   const status: number = 5;
   const response = await tugdkServiceAPI.permitSetStatus(company_id, status);
-  if (!response) arrError.push({ type: 'tugdk', data: response, isError: true, });
-  else arrError.push({ type: 'tugdk', data: response, isError: false, });
+  if (!response) arrError.push({ type: 'tugdk', data: 'bagGetway externalapi', isError: true, });
+  else arrError.push({ type: 'tugdk', data: 'successfull', isError: false, });
 
   const emailStatus: boolean = await sendEmailWithNodemailer(email, file);
-  arrError.push({ type: 'email', data: response, isError: emailStatus, email });
+  arrError.push({ type: 'email', data: 'failed sent email', isError: !emailStatus, email });
 
   const fileRemove = await fileManagerService.remove({ fileName: file, folder: 'public' });
   if (!fileRemove) logger.error({ message: 'Remove file error', date: '/public/' + file });
