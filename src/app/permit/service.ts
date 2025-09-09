@@ -240,6 +240,8 @@ export const sendEmail = async (ledgerID: string, pdf: MultipartFile) => {
   if (!fileRemove) logger.error({ message: 'Remove file error', date: '/public/' + file })
 
   const status: number = 5;
+  console.log("company_id: ", company_id )
+  console.log("--------------------------------------------------------" )
   const response = await tugdkServiceAPI.permitSetStatus(company_id, status);
   if (!response) throw err.BadGateway('External API request failed update permitSetStatus');
 

@@ -42,14 +42,13 @@ const start = async () => {
       prefix: '/api/public',
     });
 
+    console.log(getEnv('EMAIL_PASSWORD'))
     app.get('/api/openapi', async () => openApi.document);
 
     s.registerRouter(contract, router, app, {
       requestValidationErrorHandler: errorUtil.requestValidationErrorHandler,
       logInitialization: true,
     });
-
-    // s.registerRouter(contract, router, app);
 
     await app.listen({ port, host });
     console.log(`http://${host}:${port}`);

@@ -1,33 +1,32 @@
 import nodemailer from 'nodemailer';
-import { loggerHttp } from './logger';
+import { logger, loggerHttp } from './logger';
 import { getEnv } from '@src/infra/env/service';
 import { fileManagerService } from '@src/infra/file-manager';
 
-const emailName = getEnv('EMAIL_USER');
+const email = getEnv('EMAIL_USER');
+const emailPass = getEnv('EMAIL_PASSWORD');
 
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
     secure: false,
     auth: {
-        user: emailName,
-        pass: getEnv('EMAIL_PASSWORD'),
+        user: email,
+        pass: emailPass,
     },
+    logger: true,
 });
-
 
 export const sendEmailWithNodemailer = async (toEmail: string, fileName: string) => {
     try {
         const filePath = fileManagerService.getPath({ fileName, folder: 'public' });
-        const subjectText: string = 'Elektron Rugsatnamañyz';
-        const textBody: string = 'Pdf file görnüşinde açyp bilersiñiz';
 
         await transporter.sendMail({
-            from: `"${subjectText}" <${emailName}>`,
+            from: `"Elektron Rugsatnama" <${email}>`,
             to: toEmail,
-            subject: subjectText,
-            text: textBody,
-            html: `<h2>Siziñ ${subjectText}<br/><br/>${textBody}</h2>`,
+            subject: "Elektron Rugsatnama",
+            text: 'Pdf file görnüşinde açyp bilersiñiz',
+            html: `<h2>Siziñ Elektron Rugsatnamañyz</h2><p>Pdf file görnüşinde açyp bilersiñiz</p>`,
             attachments: [
                 {
                     filename: fileName,
@@ -38,8 +37,11 @@ export const sendEmailWithNodemailer = async (toEmail: string, fileName: string)
         });
 
         return true;
-    } catch (e) {
-        loggerHttp(e, emailName);
+    } catch (e: any) {
+        loggerHttp(e, email);
+        const fileRemove = await fileManagerService.remove({ fileName, folder: 'public' });
+        if (!fileRemove) logger.error({ message: 'Remove file error', date: '/public/' + fileName })
+
         return false;
     }
 };

@@ -2,19 +2,12 @@ import { sql, type Kysely } from 'kysely';
 
 const table = 'admins';
 
-export async function up(db: Kysely<any>): Promise<void> {
+export async function up(db: Kysely<unknown>): Promise<void> {
   await db.schema
-    .createTable(table)
-    .ifNotExists()
-    .addColumn('uuid', 'uuid', c => c.primaryKey().defaultTo(sql`gen_random_uuid()`))
-    .addColumn('username', 'varchar(200)', (c) => c.notNull().unique())
-    .addColumn('password', 'varchar(100)', (c) => c.notNull())
-    .addColumn('password_name', 'varchar(100)')
-    .addColumn('name', 'varchar(255)')
-    .addColumn('role_id', 'uuid', (c) => c.references('roles.uuid').onUpdate('cascade').onDelete('set null'))
+    .alterTable(table)
+    .addColumn('document_number', 'varchar')
+    .addColumn('filename', 'varchar')
+    .addColumn('payDate', 'timestamptz')
+    .addColumn('createdAt', 'timestamptz', c => c.notNull().defaultTo(sql`now()`))
     .execute();
-}
-
-export async function down(db: Kysely<any>): Promise<void> {
-  await db.schema.dropTable(table).ifExists().execute();
 }
