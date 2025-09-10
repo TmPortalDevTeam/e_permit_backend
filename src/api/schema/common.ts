@@ -64,7 +64,7 @@ export const uuidSchema = z.string().uuid({ message: "must be a valid UUID" });
 export const typePayment = z.enum(['online', 'bank', 'accountant'], { message: "invalid type, type is (online, bank, accountant)" });
 
 export const paymentFieldsSchema = z.object({
-  permit_id: z.string().uuid(),
+  // permit_id: z.string().uuid(),
   amount: z.coerce.number().int(),
   type: typePayment,
   pay_date: z.coerce.date(),

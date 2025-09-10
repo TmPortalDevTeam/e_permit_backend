@@ -7,7 +7,7 @@ export async function validateOfflinePayment(request: any, reply: any) {
 
     const fields = file.fields || {};
     const payload = {
-        permit_id: fields.permit_id?.value,
+        // permit_id: fields.permit_id?.value,
         amount: fields.amount?.value,
         type: fields.type?.value,
         pay_date: fields.pay_date?.value,

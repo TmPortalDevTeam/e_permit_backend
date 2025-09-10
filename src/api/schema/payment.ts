@@ -42,7 +42,7 @@ export const oflinePaymentCreate = payment.pick({
 
 const createOflinePayment = z.custom<{
   file: any,
-  permit_id: string,
+  // permit_id: string,
   amount: number,
   type: string,
   pay_date: Date,

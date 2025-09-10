@@ -2,7 +2,7 @@ import { LimitOffset } from '@api/schema/common';
 import { db, DB } from '@infra/db/db';
 import { err } from '@src/utils';
 import { Insertable, Selectable, Updateable } from 'kysely';
-import { OnlinePaymentCreate } from '../../api/schema/payment';
+
 
 type Table = DB['payment'];
 const table = 'payment';
@@ -25,7 +25,7 @@ const edit = async (uuid: string, p: Edit) => {
   return db.updateTable(table).where('uuid', '=', uuid).set(p).returningAll().executeTakeFirst();
 };
 
-// online toleg
+// online ofline toleg
 const addPayment = async (p: Insert) => {
   return await db.transaction().execute(async (trx) => {
     const payment = await trx
@@ -48,9 +48,35 @@ const addPayment = async (p: Insert) => {
   });
 };
 
+
+// ofline toleg
+const addPaymentOfline = async (p: Insert, status: number) => {
+  return await db.transaction().execute(async (trx) => {
+    const payment = await trx
+      .insertInto(table)
+      .values(p)
+      .returningAll()
+      .executeTakeFirst();
+
+    if (!payment) throw err.InternalServerError('Payment not created');
+
+    const updatedPermit = await trx
+      .updateTable('permit')
+      .set({ status, is_paid: true })
+      .where('uuid', '=', p.permit_id)
+      .executeTakeFirst();
+
+    if (!updatedPermit) throw err.InternalServerError('Permit not updated status, is_paid');
+
+    return true;
+  });
+};
+
+
 export const paymentRepo = {
   edit,
   create,
   findOne,
   addPayment,
+  addPaymentOfline
 };
