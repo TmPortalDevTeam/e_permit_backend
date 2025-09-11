@@ -3,6 +3,7 @@ import { auth, checkRole } from '../admin/auth/auth.middleware';
 import { permitService as service } from './service';
 import { permitContract } from '@src/api/contracts/permit';
 import { err } from '@src/utils';
+import { getEnv } from '@src/infra/env/service';
 
 
 export const permitRouter = s.router(permitContract, {
@@ -155,6 +156,17 @@ export const permitRouter = s.router(permitContract, {
     handler: async ({ params }) => {
       const r = await service.getPermitStatus(params.permitUUID);
       return { status: 200, body: r };
+    },
+  },
+
+  permitPrice: {
+    handler: async () => {
+      return {
+        status: 200,
+        body: {
+          permitPrice: getEnv('DEDUCTION_AMOUNT') // dayanch yazypdyr DEDUCTION_AMOUNT
+        }
+      };
     },
   },
 });

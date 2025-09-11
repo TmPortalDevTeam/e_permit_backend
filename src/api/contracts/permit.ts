@@ -143,6 +143,12 @@ export const permitContract = c.router(
       pathParams: z.object({ permitUUID: z.string().uuid() }),
       responses: { 200: respBody }
     },
+
+    permitPrice: {
+      method: 'GET',
+      path: '/permit/price',
+      responses: { 200: respBody }
+    },
   },
   { pathPrefix: '/api/admin' },
 );
