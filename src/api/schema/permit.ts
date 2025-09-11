@@ -106,7 +106,7 @@ export const permitGetAll = permit
   .pick({ is_legal: true })
   .extend({
     text: z.string(),
-    status: strInt.array()
+    status: strInt
   })
   .partial()
   .merge(commonQuery);
