@@ -61,8 +61,8 @@ export const permitRouter = s.router(permitContract, {
   },
   adminGetPermits: {
     hooks: { preHandler: [auth, checkRole(['superadmin'])] },
-    handler: async () => {
-      const r = await service.getPermits();
+    handler: async ({ query }) => {
+      const r = await service.getPermits(query);
       return { status: 200, body: r };
     },
   },

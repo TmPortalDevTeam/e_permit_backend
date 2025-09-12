@@ -14,7 +14,7 @@ import {
 } from '@src/api/schema/permit';
 import { fileManagerService } from '@src/infra/file-manager';
 import { AuthoritiesCreate, AuthoritiesQuotaCreate } from '@src/api/schema/authorities';
-import { GetAllPermitsExternalApi } from '@src/api/schema/permitExternalApi';
+import { GetAllPermitsExternalApi, GetPermitsExternalApi } from '@src/api/schema/permitExternalApi';
 
 
 const createPermit = async (d: PemritCreate) => {
@@ -126,17 +126,15 @@ const changePermitStatus = async (d: PermitStatusUpdate) => {
   return resp.parse({ data: null });
 }
 
-const getPermits = async () => {
-  const response = await permitServiceAPI.getPermits();
+const getPermits = async (params: GetPermitsExternalApi) => {
+  const response = await permitServiceAPI.getPermits(params);
   if (!response) throw err.InternalServerError('Failed to read response body');
 
-  const content = response.content;
-
-  if (content === undefined || content === null) {
+  if (!response) {
     throw err.BadGateway('External API Content field is null or undefined');
   }
 
-  return resp.parse({ data: content })
+  return resp.parse({ data: response })
 }
 
 const getAllPermitsExternalApi = async (params: GetAllPermitsExternalApi) => {

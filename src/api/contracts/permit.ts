@@ -3,7 +3,7 @@ import { initContract } from '@ts-rest/core';
 import { permitSchema as schema } from '../schema/permit';
 import { addFile, paramsCode, paramsId, paramsPermitID, paramsPermitId, resp, respBody } from '../schema/common';
 import { authoritiesSchema } from '../schema/authorities';
-import { getAllPermitsExternalApi } from '../schema/permitExternalApi';
+import { getAllPermitsExternalApi, getPermitsExternalApi } from '../schema/permitExternalApi';
 
 const c = initContract();
 
@@ -60,6 +60,7 @@ export const permitContract = c.router(
     adminGetPermits: {
       method: 'GET',
       path: '/permits',
+      query: getPermitsExternalApi,
       responses: { 200: resp }
     },
     adminGetAllPermitsExternalApi: {
