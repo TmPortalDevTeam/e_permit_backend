@@ -360,6 +360,7 @@ const getPermit = async (id: string) => {
 };
 
 /** Foreign table query DANGER */
+// TODO Black History uchin yazylda olam gerek dal didiler
 const getExpiredPermits = async () => {
   return db
     .selectFrom('epermit_ledger_permits')

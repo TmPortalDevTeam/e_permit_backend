@@ -206,12 +206,77 @@ const addQuota = async (code: string, d: AuthoritiesQuotaCreate) => {
   return resp.parse({ data: response });
 }
 
-const AddPermitActivities = async (permitID: string, d: PermitActivityCreate) => {
-  const responseStatus = await permitServiceAPI.addPermitActivities(permitID, d);
-  if (responseStatus !== 200) throw err.BadGateway('Failed to send request to external API add Permit Activities');
 
-  return resp.parse({ data: '' });
+const countActivities = (activities: PermitActivityCreate[]) => {
+  let entrance: number = 0;
+  let exit: number = 0;
+
+  for (const act of activities) {
+    switch (act.activity_type) {
+      case 'ENTRANCE': entrance++; break;
+      case 'EXIT': exit++; break;
+      default: break;
+    }
+  }
+
+  return { entrance, exit };
 }
+
+/**    permitType
+ * code:   |    name:
+ *  1      |  Bilateral
+ *  2      |  Transit 
+ *  3      |  Third Country
+ *  4      |  Unladen entry/return load
+ */
+const canAddActivity = (
+  permitType: number,
+  counts: { entrance: number; exit: number },
+  newType: PermitActivityCreate['activity_type']
+) => {
+  const maxPerType = permitType === 2 ? 2 : 1;
+
+  if (newType === 'ENTRANCE') return counts.entrance < maxPerType;
+  if (newType === 'EXIT') return counts.exit < maxPerType;
+
+  return true;
+};
+
+const AddPermitActivities = async (permitID: string, d: PermitActivityCreate) => {
+
+  const permitOne = await permitServiceAPI.findPermit(permitID);
+  if (!permitOne) throw err.NotFound(`Not found on external api, permit_id = ${permitID}`);
+
+  if (!Array.isArray(permitOne.activities)) {
+    throw err.BadGateway('The activities field is missing');
+  }
+
+  const permitActivities = permitOne.activities;
+  const entrance_exit = countActivities(permitActivities);
+
+  if (!canAddActivity(permitOne.permit_type, entrance_exit, d.activity_type)) {
+    throw err.BadRequest(`Cannot add ${d.activity_type}. Limit reached for permit_type=${permitOne.permit_type}`);
+  }
+
+  const responseStatus = await permitServiceAPI.addPermitActivities(permitID, d);
+  if (responseStatus !== 200) {
+    throw err.BadGateway(`Failed to send request to external API add Permit Activities. status_Code_External_Api: ${responseStatus} or 422`);
+  }
+
+  return resp.parse({
+    data: {
+      permitId: permitOne.permit_id,
+      permit_type: permitOne.permit_type,
+      entrance_exit
+    }
+  });
+}
+
+// const AddPermitActivities = async (permitID: string, d: PermitActivityCreate) => {
+//   const responseStatus = await permitServiceAPI.addPermitActivities(permitID, d);
+//   if (responseStatus !== 200) throw err.BadGateway('Failed to send request to external API add Permit Activities');
+//   return resp.parse({ data: '' });
+// }
 
 export const sendEmail = async (ledgerID: string, pdf: MultipartFile) => {
   const epermit_ledger_permits = await permitServiceAPI.getPermitsByID(ledgerID);

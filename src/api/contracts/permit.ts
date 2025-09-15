@@ -123,6 +123,7 @@ export const permitContract = c.router(
       body: authoritiesSchema.authoritiesQuotaCreate,
       responses: { 200: resp }
     },
+    /** Girdi, Cjykdy beleyan API */
     addPermitActivity: {
       method: 'POST',
       path: '/permit-activity/:permitID/activities',
